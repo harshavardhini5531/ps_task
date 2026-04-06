@@ -66,9 +66,6 @@ function Landing({onLogin,onSeed}){return(
       <button onClick={onLogin} style={{padding:"16px 48px",borderRadius:16,border:"none",background:"linear-gradient(135deg,#ff2d00,#cc2400)",color:"white",fontSize:16,fontWeight:700,cursor:"pointer",display:"flex",alignItems:"center",gap:10,margin:"0 auto",boxShadow:"0 6px 20px rgba(255,45,0,.2)"}}>
         <GI Icon={Lock} size={20} color="white"/> Login
       </button>
-      <button onClick={onSeed} style={{marginTop:20,padding:"8px 20px",borderRadius:10,border:"1px solid #2A1510",background:"transparent",color:"#4A3A30",fontSize:12,cursor:"pointer",margin:"20px auto 0",display:"flex",alignItems:"center",gap:6}}>
-        <GI Icon={Zap} size={12} color="#4A3A30"/> Seed Database
-      </button>
       <p style={{marginTop:40,fontSize:12,color:"#3A2A20",letterSpacing:1.5,fontWeight:600}}>ADITYA UNIVERSITY • PROJECT SPACE EVENT</p>
     </div>
   </div>
