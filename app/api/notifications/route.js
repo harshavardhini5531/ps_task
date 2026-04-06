@@ -1,5 +1,4 @@
 import { getDb } from '@/lib/mongodb'
-import { ObjectId } from 'mongodb'
 import { NextResponse } from 'next/server'
 
 export async function GET() {
@@ -8,17 +7,18 @@ export async function GET() {
     const notifs = await db.collection('task_notifications').find({}).sort({ createdAt: -1 }).limit(50).toArray()
     return NextResponse.json(notifs)
   } catch (err) {
-    return NextResponse.json({ error: err.message }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to fetch notifications' }, { status: 500 })
   }
 }
 
-export async function PUT(request) {
+export async function POST(req) {
   try {
-    const { id } = await request.json()
     const db = await getDb()
-    await db.collection('task_notifications').updateOne({ _id: new ObjectId(id) }, { $set: { read: true } })
-    return NextResponse.json({ ok: true })
+    const body = await req.json()
+    const notif = { ...body, createdAt: new Date(), read: false }
+    await db.collection('task_notifications').insertOne(notif)
+    return NextResponse.json({ success: true })
   } catch (err) {
-    return NextResponse.json({ error: err.message }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to create notification' }, { status: 500 })
   }
 }

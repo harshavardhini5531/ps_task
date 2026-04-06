@@ -1,54 +1,76 @@
 import { getDb } from '@/lib/mongodb'
-import { sendOTPEmail } from '@/lib/mailer'
 import { NextResponse } from 'next/server'
 import crypto from 'crypto'
 
 const ADMIN_EMAILS = [
   'harshavardhini.j@adityauniversity.in',
   'babji@aec.edu.in',
-  'harshavardhini@technicalhub.io',
+  'harshavardhini@technicalhub.io'
 ]
 
-export async function POST(request) {
+function hashPassword(password) {
+  return crypto.createHash('sha256').update(password).digest('hex')
+}
+
+export async function POST(req) {
   try {
-    const { action, email, otp } = await request.json()
     const db = await getDb()
+    const body = await req.json()
+    const { action } = body
 
-    if (action === 'send-otp') {
-      const emailLower = email.toLowerCase()
-      const mentor = await db.collection('task_mentors').findOne({ email: emailLower })
-      if (!mentor) return NextResponse.json({ error: 'Email not found in system' }, { status: 404 })
-
-      const code = crypto.randomInt(100000, 999999).toString()
-      await db.collection('task_otps').deleteMany({ email: emailLower })
-      await db.collection('task_otps').insertOne({ email: emailLower, otp: code, createdAt: new Date() })
-
-      const emailSent = await sendOTPEmail(emailLower, mentor.name, code)
-      const isAdmin = ADMIN_EMAILS.includes(emailLower)
-
-      return NextResponse.json({
-        message: 'OTP sent',
-        mentor: { name: mentor.name, email: mentor.email },
-        isAdmin,
-        emailSent,
-        demo_otp: code
+    // ── REGISTER ──
+    if (action === 'register') {
+      const { email, password, name } = body
+      if (!email || !password) {
+        return NextResponse.json({ error: 'Email and password required' }, { status: 400 })
+      }
+      const mentors = db.collection('task_mentors')
+      const existing = await mentors.findOne({ email: email.toLowerCase().trim() })
+      if (!existing) {
+        return NextResponse.json({ error: 'Email not found in mentor list. Contact admin.' }, { status: 404 })
+      }
+      if (existing.passwordHash) {
+        return NextResponse.json({ error: 'Account already registered. Please login.' }, { status: 409 })
+      }
+      await mentors.updateOne(
+        { email: email.toLowerCase().trim() },
+        { $set: { passwordHash: hashPassword(password), registeredAt: new Date() } }
+      )
+      const role = ADMIN_EMAILS.includes(email.toLowerCase().trim()) ? 'admin' : 'mentor'
+      return NextResponse.json({ 
+        success: true, 
+        mentor: { name: existing.name, email: existing.email, role },
+        message: 'Account created successfully!' 
       })
     }
 
-    if (action === 'verify-otp') {
-      const emailLower = email.toLowerCase()
-      const record = await db.collection('task_otps').findOne({ email: emailLower, otp })
-      if (!record) return NextResponse.json({ error: 'Invalid or expired OTP' }, { status: 401 })
-
-      await db.collection('task_otps').deleteMany({ email: emailLower })
-      const mentor = await db.collection('task_mentors').findOne({ email: emailLower })
-      const isAdmin = ADMIN_EMAILS.includes(emailLower)
-
-      return NextResponse.json({ message: 'Verified', mentor, isAdmin })
+    // ── LOGIN ──
+    if (action === 'login') {
+      const { email, password } = body
+      if (!email || !password) {
+        return NextResponse.json({ error: 'Email and password required' }, { status: 400 })
+      }
+      const mentors = db.collection('task_mentors')
+      const mentor = await mentors.findOne({ email: email.toLowerCase().trim() })
+      if (!mentor) {
+        return NextResponse.json({ error: 'Email not found. Check your email or contact admin.' }, { status: 404 })
+      }
+      if (!mentor.passwordHash) {
+        return NextResponse.json({ error: 'Account not registered yet. Please create account first.' }, { status: 403 })
+      }
+      if (mentor.passwordHash !== hashPassword(password)) {
+        return NextResponse.json({ error: 'Incorrect password. Try again.' }, { status: 401 })
+      }
+      const role = ADMIN_EMAILS.includes(email.toLowerCase().trim()) ? 'admin' : 'mentor'
+      return NextResponse.json({ 
+        success: true, 
+        mentor: { name: mentor.name, email: mentor.email, role } 
+      })
     }
 
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
   } catch (err) {
-    return NextResponse.json({ error: err.message }, { status: 500 })
+    console.error('Auth error:', err)
+    return NextResponse.json({ error: 'Server error' }, { status: 500 })
   }
 }
