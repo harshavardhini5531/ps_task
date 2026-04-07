@@ -54,21 +54,41 @@ function ProgressBar({done,total,color="#ff2d00"}){const pct=total>0?Math.round(
 /* ═══════════════════════════════════════════════════════════════
    LANDING
    ═══════════════════════════════════════════════════════════════ */
-function LandingPage({onAdminLogin,onMentorLogin,onAdminCreate,onMentorCreate}){
+function LandingPage({onLogin,onCreateAccount}){
   return<div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",position:"relative",overflow:"hidden"}}>
     <div style={{position:"absolute",top:"-18%",left:"25%",width:500,height:500,borderRadius:"50%",background:"radial-gradient(circle,rgba(255,45,0,.06) 0%,transparent 70%)",pointerEvents:"none"}}/>
     <div style={{position:"absolute",bottom:"-12%",right:"18%",width:380,height:380,borderRadius:"50%",background:"radial-gradient(circle,rgba(59,130,246,.04) 0%,transparent 70%)",pointerEvents:"none"}}/>
-    <div className="fade-up" style={{textAlign:"center",maxWidth:560,padding:40}}>
+    <div className="fade-up" style={{textAlign:"center",maxWidth:520,padding:40}}>
       <div style={{width:80,height:80,borderRadius:22,background:"linear-gradient(135deg,#ff2d00,#ff6b3d)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 28px",boxShadow:"0 12px 40px rgba(255,45,0,.2)"}}><ClipboardList size={36} color="#fff" strokeWidth={2}/></div>
       <h1 style={{fontFamily:"var(--font-display)",fontSize:42,fontWeight:800,marginBottom:8,letterSpacing:-1}}>Project<span style={{color:"#ff2d00"}}>Space</span></h1>
-      <p style={{fontSize:16,color:"#9898b0",marginBottom:40,lineHeight:1.6}}>Task Monitoring & Coordination Platform</p>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,maxWidth:420,margin:"0 auto"}}>
-        <Btn variant="admin" onClick={onAdminLogin} style={{padding:"16px 20px",fontSize:14,borderRadius:14,justifyContent:"center"}}><Shield size={16}/> Admin Login</Btn>
-        <Btn variant="mentor" onClick={onMentorLogin} style={{padding:"16px 20px",fontSize:14,borderRadius:14,justifyContent:"center"}}><User size={16}/> Mentor Login</Btn>
-        <button onClick={onAdminCreate} style={{padding:"14px 20px",borderRadius:14,border:"1px solid rgba(255,45,0,.25)",background:"rgba(255,45,0,.06)",color:"#ff6b3d",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"var(--font-body)",display:"flex",alignItems:"center",justifyContent:"center",gap:8,transition:"all .2s"}}><UserPlus size={15}/> Admin Create Account</button>
-        <button onClick={onMentorCreate} style={{padding:"14px 20px",borderRadius:14,border:"1px solid rgba(59,130,246,.25)",background:"rgba(59,130,246,.06)",color:"#60a5fa",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"var(--font-body)",display:"flex",alignItems:"center",justifyContent:"center",gap:8,transition:"all .2s"}}><UserPlus size={15}/> Mentor Create Account</button>
+      <p style={{fontSize:16,color:"#9898b0",marginBottom:48,lineHeight:1.6}}>Task Monitoring & Coordination Platform</p>
+      <div style={{display:"flex",gap:16,justifyContent:"center",flexWrap:"wrap"}}>
+        <Btn variant="admin" onClick={onLogin} style={{padding:"16px 40px",fontSize:15,borderRadius:14}}><LogIn size={18}/> Login</Btn>
+        <Btn variant="mentor" onClick={onCreateAccount} style={{padding:"16px 40px",fontSize:15,borderRadius:14}}><UserPlus size={18}/> Create Account</Btn>
       </div>
       <p style={{marginTop:40,fontSize:12,color:"#5c5c78"}}>Aditya University &middot; ProjectSpace 2026</p>
+    </div></div>}
+
+/* ═══ ROLE PICK (after clicking Create Account) ═══ */
+function RolePickPage({onPick,onBack}){
+  return<div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center"}}>
+    <div className="fade-up" style={{background:"#10101a",border:"1px solid #1e1e2e",borderRadius:24,padding:"48px 40px",width:"100%",maxWidth:440,textAlign:"center",boxShadow:"0 24px 64px rgba(0,0,0,.5)"}}>
+      <div style={{width:56,height:56,borderRadius:16,background:"linear-gradient(135deg,#8b5cf6,#6d28d9)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 20px"}}><UserPlus size={26} color="#fff"/></div>
+      <h2 style={{fontFamily:"var(--font-display)",fontSize:24,fontWeight:700,marginBottom:4}}>Create Account</h2>
+      <p style={{color:"#9898b0",fontSize:13,marginBottom:32}}>Select your role to continue</p>
+      <div style={{display:"flex",flexDirection:"column",gap:12}}>
+        <button onClick={()=>onPick("admin")} style={{padding:"18px 24px",borderRadius:14,border:"1px solid rgba(255,45,0,.25)",background:"rgba(255,45,0,.06)",color:"#f0eff4",fontSize:15,fontWeight:700,cursor:"pointer",fontFamily:"var(--font-body)",display:"flex",alignItems:"center",gap:14,transition:"all .2s"}}
+          onMouseEnter={e=>e.currentTarget.style.background="rgba(255,45,0,.12)"} onMouseLeave={e=>e.currentTarget.style.background="rgba(255,45,0,.06)"}>
+          <div style={{width:42,height:42,borderRadius:12,background:"linear-gradient(135deg,#ff2d00,#ff6b3d)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><Shield size={20} color="#fff"/></div>
+          <div style={{textAlign:"left"}}><div style={{fontSize:15,fontWeight:700}}>Admin</div><div style={{fontSize:12,color:"#9898b0",fontWeight:400,marginTop:2}}>Full access to all tasks & assignments</div></div>
+        </button>
+        <button onClick={()=>onPick("mentor")} style={{padding:"18px 24px",borderRadius:14,border:"1px solid rgba(59,130,246,.25)",background:"rgba(59,130,246,.06)",color:"#f0eff4",fontSize:15,fontWeight:700,cursor:"pointer",fontFamily:"var(--font-body)",display:"flex",alignItems:"center",gap:14,transition:"all .2s"}}
+          onMouseEnter={e=>e.currentTarget.style.background="rgba(59,130,246,.12)"} onMouseLeave={e=>e.currentTarget.style.background="rgba(59,130,246,.06)"}>
+          <div style={{width:42,height:42,borderRadius:12,background:"linear-gradient(135deg,#3b82f6,#60a5fa)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><User size={20} color="#fff"/></div>
+          <div style={{textAlign:"left"}}><div style={{fontSize:15,fontWeight:700}}>Mentor</div><div style={{fontSize:12,color:"#9898b0",fontWeight:400,marginTop:2}}>View & manage your assigned tasks</div></div>
+        </button>
+      </div>
+      <button onClick={onBack} style={{width:"100%",marginTop:20,padding:12,borderRadius:12,border:"1px solid #1e1e2e",background:"transparent",color:"#9898b0",fontSize:14,fontWeight:600,cursor:"pointer",fontFamily:"var(--font-body)",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}><ArrowLeft size={14}/> Back to Home</button>
     </div></div>}
 
 /* ═══════════════════════════════════════════════════════════════
@@ -362,9 +382,10 @@ export default function App(){
   const goHome=()=>{setEmail("");setPrefillEmail("");setLoginRole("mentor");setPage("landing")}
 
   return<><Toasts toasts={toasts}/>
-    {page==="landing"&&<LandingPage onAdminLogin={()=>{setLoginRole("admin");setPage("login")}} onMentorLogin={()=>{setLoginRole("mentor");setPage("login")}} onAdminCreate={()=>{setLoginRole("admin");setPage("create-email")}} onMentorCreate={()=>{setLoginRole("mentor");setPage("create-email")}}/>}
+    {page==="landing"&&<LandingPage onLogin={()=>setPage("login")} onCreateAccount={()=>setPage("role-pick")}/>}
+    {page==="role-pick"&&<RolePickPage onPick={(r)=>{setLoginRole(r);setPage("create-email")}} onBack={goHome}/>}
     {page==="login"&&<LoginPage onSubmit={handleLogin} onBack={goHome} loading={loading} prefillEmail={prefillEmail} role={loginRole}/>}
-    {page==="create-email"&&<CreateEmailPage onSubmit={handleCreateSendOTP} onBack={goHome} loading={loading} role={loginRole}/>}
+    {page==="create-email"&&<CreateEmailPage onSubmit={handleCreateSendOTP} onBack={()=>setPage("role-pick")} loading={loading} role={loginRole}/>}
     {page==="otp"&&<OTPPage email={email} onVerify={handleVerifyOTP} onBack={()=>setPage("create-email")} loading={loading}/>}
     {page==="create-password"&&<CreatePasswordPage email={email} onSubmit={handleCreatePassword} loading={loading}/>}
     {page==="admin"&&user&&<AdminDashboard user={user} tasks={tasks} mentors={mentors} onLogout={handleLogout} onRefresh={fetchData} addToast={addToast}/>}
