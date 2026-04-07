@@ -1,26 +1,26 @@
 "use client"
 import { useState, useEffect, useCallback, useRef } from "react"
-import { LogIn, LogOut, Search, Plus, Trash2, Edit3, Check, X, Bell, Users, ClipboardList, BarChart3, Layers, Shield, Eye, EyeOff, Mail, Lock, User, CheckCircle2, Circle, AlertCircle, Clock, ArrowLeft, Star, Send, GripVertical, UserPlus, ChevronRight } from "lucide-react"
+import { LogIn, LogOut, Search, Plus, Trash2, Edit3, Check, X, Bell, Users, ClipboardList, BarChart3, Layers, Shield, Eye, EyeOff, Mail, Lock, User, CheckCircle2, Circle, AlertCircle, Clock, ArrowLeft, Star, Send, GripVertical, UserPlus } from "lucide-react"
 
 const ADMIN_EMAILS = ["harshavardhini.j@adityauniversity.in","babji@aec.edu.in","harshavardhini@technicalhub.io"]
 const CARD_COLORS = [
-  { bg:"rgba(255,45,0,.07)", border:"rgba(255,45,0,.22)", accent:"#ff2d00" },
-  { bg:"rgba(59,130,246,.07)", border:"rgba(59,130,246,.22)", accent:"#3b82f6" },
-  { bg:"rgba(245,158,11,.07)", border:"rgba(245,158,11,.22)", accent:"#f59e0b" },
-  { bg:"rgba(16,185,129,.07)", border:"rgba(16,185,129,.22)", accent:"#10b981" },
-  { bg:"rgba(139,92,246,.07)", border:"rgba(139,92,246,.22)", accent:"#8b5cf6" },
-  { bg:"rgba(236,72,153,.07)", border:"rgba(236,72,153,.22)", accent:"#ec4899" },
-  { bg:"rgba(6,182,212,.07)", border:"rgba(6,182,212,.22)", accent:"#06b6d4" },
-  { bg:"rgba(249,115,22,.07)", border:"rgba(249,115,22,.22)", accent:"#f97316" },
+  {bg:"rgba(255,45,0,.07)",border:"rgba(255,45,0,.22)",accent:"#ff2d00"},
+  {bg:"rgba(59,130,246,.07)",border:"rgba(59,130,246,.22)",accent:"#3b82f6"},
+  {bg:"rgba(245,158,11,.07)",border:"rgba(245,158,11,.22)",accent:"#f59e0b"},
+  {bg:"rgba(16,185,129,.07)",border:"rgba(16,185,129,.22)",accent:"#10b981"},
+  {bg:"rgba(139,92,246,.07)",border:"rgba(139,92,246,.22)",accent:"#8b5cf6"},
+  {bg:"rgba(236,72,153,.07)",border:"rgba(236,72,153,.22)",accent:"#ec4899"},
+  {bg:"rgba(6,182,212,.07)",border:"rgba(6,182,212,.22)",accent:"#06b6d4"},
+  {bg:"rgba(249,115,22,.07)",border:"rgba(249,115,22,.22)",accent:"#f97316"},
 ]
 const COL_STYLES = {
-  todo:      { label:"Total Stages", color:"#3b82f6", bg:"rgba(59,130,246,.06)", border:"rgba(59,130,246,.18)" },
-  progress:  { label:"In Progress",  color:"#f59e0b", bg:"rgba(245,158,11,.06)", border:"rgba(245,158,11,.18)" },
-  completed: { label:"Completed",    color:"#22c55e", bg:"rgba(34,197,94,.06)",  border:"rgba(34,197,94,.18)" },
+  todo:{label:"Total Stages",color:"#3b82f6",bg:"rgba(59,130,246,.06)",border:"rgba(59,130,246,.18)"},
+  progress:{label:"In Progress",color:"#f59e0b",bg:"rgba(245,158,11,.06)",border:"rgba(245,158,11,.18)"},
+  completed:{label:"Completed",color:"#22c55e",bg:"rgba(34,197,94,.06)",border:"rgba(34,197,94,.18)"},
 }
 
 /* ═══ AVATAR ═══ */
-const AV_C = ["#ff2d00","#3b82f6","#f59e0b","#10b981","#8b5cf6","#ec4899","#06b6d4","#f97316","#6366f1","#14b8a6","#e11d48","#0ea5e9","#84cc16","#f43f5e","#a855f7"]
+const AV_C=["#ff2d00","#3b82f6","#f59e0b","#10b981","#8b5cf6","#ec4899","#06b6d4","#f97316","#6366f1","#14b8a6","#e11d48","#0ea5e9","#84cc16","#f43f5e","#a855f7"]
 function getAC(n){let h=0;for(let i=0;i<(n||"").length;i++)h=n.charCodeAt(i)+((h<<5)-h);return AV_C[Math.abs(h)%AV_C.length]}
 function Avatar({name,size=32}){const c=getAC(name),ini=(name||"?").split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase()
   return<div style={{width:size,height:size,borderRadius:size*.35,background:`${c}22`,border:`2px solid ${c}44`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
@@ -39,11 +39,11 @@ function Btn({children,variant="primary",onClick,style={},disabled=false}){
   const v={primary:{background:"#ff2d00",color:"#fff",boxShadow:"0 4px 16px rgba(255,45,0,.3)"},secondary:{background:"transparent",color:"#9898b0",border:"1px solid #2e2e42"},ghost:{background:"transparent",color:"#9898b0",padding:"8px 14px"},admin:{background:"linear-gradient(135deg,#ff2d00,#ff6b3d)",color:"#fff",boxShadow:"0 4px 20px rgba(255,45,0,.35)"},mentor:{background:"linear-gradient(135deg,#3b82f6,#60a5fa)",color:"#fff",boxShadow:"0 4px 20px rgba(59,130,246,.35)"}}
   return<button onClick={onClick} disabled={disabled} style={{...base,...v[variant],...style}}>{children}</button>}
 
-function FormInput({label,icon:Icon,type="text",value,onChange,placeholder,onKeyDown,autoFocus}){const[show,setShow]=useState(false);const isP=type==="password"
+function FormInput({label,icon:Icon,type="text",value,onChange,placeholder,onKeyDown,autoFocus,disabled}){const[show,setShow]=useState(false);const isP=type==="password"
   return<div style={{marginBottom:20}}>{label&&<label style={{display:"block",fontSize:11,fontWeight:700,color:"#9898b0",marginBottom:6,textTransform:"uppercase",letterSpacing:1.5}}>{label}</label>}
     <div style={{position:"relative"}}>{Icon&&<Icon size={16} style={{position:"absolute",left:14,top:"50%",transform:"translateY(-50%)",color:"#5c5c78"}}/>}
-      <input type={isP&&!show?"password":"text"} value={value} onChange={e=>onChange(e.target.value)} placeholder={placeholder} onKeyDown={onKeyDown} autoFocus={autoFocus}
-        style={{width:"100%",padding:"14px 18px",paddingLeft:Icon?42:18,paddingRight:isP?42:18,background:"#0c0c18",border:"1px solid #1e1e2e",borderRadius:12,color:"#f0eff4",fontSize:14,fontFamily:"var(--font-body)"}}/>
+      <input type={isP&&!show?"password":"text"} value={value} onChange={e=>onChange(e.target.value)} placeholder={placeholder} onKeyDown={onKeyDown} autoFocus={autoFocus} disabled={disabled}
+        style={{width:"100%",padding:"14px 18px",paddingLeft:Icon?42:18,paddingRight:isP?42:18,background:disabled?"#0a0a12":"#0c0c18",border:"1px solid #1e1e2e",borderRadius:12,color:disabled?"#5c5c78":"#f0eff4",fontSize:14,fontFamily:"var(--font-body)",opacity:disabled?.7:1}}/>
       {isP&&<button onClick={()=>setShow(!show)} style={{position:"absolute",right:12,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",color:"#5c5c78",padding:4}}>{show?<EyeOff size={16}/>:<Eye size={16}/>}</button>}</div></div>}
 
 function ProgressBar({done,total,color="#ff2d00"}){const pct=total>0?Math.round((done/total)*100):0
@@ -51,31 +51,58 @@ function ProgressBar({done,total,color="#ff2d00"}){const pct=total>0?Math.round(
     <div style={{width:`${pct}%`,height:"100%",background:color,borderRadius:3,transition:"width .5s ease"}}/></div>
     <span style={{fontSize:12,fontWeight:700,color,minWidth:36,textAlign:"right"}}>{pct}%</span></div>}
 
-/* ═══ AUTH PAGES ═══ */
-function LandingPage({onAdmin,onMentor}){return<div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",position:"relative",overflow:"hidden"}}>
-  <div style={{position:"absolute",top:"-18%",left:"25%",width:500,height:500,borderRadius:"50%",background:"radial-gradient(circle,rgba(255,45,0,.06) 0%,transparent 70%)",pointerEvents:"none"}}/>
-  <div style={{position:"absolute",bottom:"-12%",right:"18%",width:380,height:380,borderRadius:"50%",background:"radial-gradient(circle,rgba(59,130,246,.04) 0%,transparent 70%)",pointerEvents:"none"}}/>
-  <div className="fade-up" style={{textAlign:"center",maxWidth:520,padding:40}}>
-    <div style={{width:80,height:80,borderRadius:22,background:"linear-gradient(135deg,#ff2d00,#ff6b3d)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 28px",boxShadow:"0 12px 40px rgba(255,45,0,.2)"}}><ClipboardList size={36} color="#fff" strokeWidth={2}/></div>
-    <h1 style={{fontFamily:"var(--font-display)",fontSize:42,fontWeight:800,marginBottom:8,letterSpacing:-1}}>Project<span style={{color:"#ff2d00"}}>Space</span></h1>
-    <p style={{fontSize:16,color:"#9898b0",marginBottom:48,lineHeight:1.6}}>Task Monitoring & Coordination Platform</p>
-    <div style={{display:"flex",gap:16,justifyContent:"center",flexWrap:"wrap"}}>
-      <Btn variant="admin" onClick={onAdmin} style={{padding:"16px 40px",fontSize:15,borderRadius:14}}><Shield size={18}/> Admin Login</Btn>
-      <Btn variant="mentor" onClick={onMentor} style={{padding:"16px 40px",fontSize:15,borderRadius:14}}><User size={18}/> Mentor Login</Btn>
-    </div>
-    <p style={{marginTop:40,fontSize:12,color:"#5c5c78"}}>Aditya University &middot; ProjectSpace 2026</p>
-  </div></div>}
+/* ═══════════════════════════════════════════════════════════════
+   LANDING
+   ═══════════════════════════════════════════════════════════════ */
+function LandingPage({onLogin,onCreateAccount}){
+  return<div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",position:"relative",overflow:"hidden"}}>
+    <div style={{position:"absolute",top:"-18%",left:"25%",width:500,height:500,borderRadius:"50%",background:"radial-gradient(circle,rgba(255,45,0,.06) 0%,transparent 70%)",pointerEvents:"none"}}/>
+    <div style={{position:"absolute",bottom:"-12%",right:"18%",width:380,height:380,borderRadius:"50%",background:"radial-gradient(circle,rgba(59,130,246,.04) 0%,transparent 70%)",pointerEvents:"none"}}/>
+    <div className="fade-up" style={{textAlign:"center",maxWidth:520,padding:40}}>
+      <div style={{width:80,height:80,borderRadius:22,background:"linear-gradient(135deg,#ff2d00,#ff6b3d)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 28px",boxShadow:"0 12px 40px rgba(255,45,0,.2)"}}><ClipboardList size={36} color="#fff" strokeWidth={2}/></div>
+      <h1 style={{fontFamily:"var(--font-display)",fontSize:42,fontWeight:800,marginBottom:8,letterSpacing:-1}}>Project<span style={{color:"#ff2d00"}}>Space</span></h1>
+      <p style={{fontSize:16,color:"#9898b0",marginBottom:48,lineHeight:1.6}}>Task Monitoring & Coordination Platform</p>
+      <div style={{display:"flex",gap:16,justifyContent:"center",flexWrap:"wrap"}}>
+        <Btn variant="admin" onClick={onLogin} style={{padding:"16px 40px",fontSize:15,borderRadius:14}}><LogIn size={18}/> Login</Btn>
+        <Btn variant="mentor" onClick={onCreateAccount} style={{padding:"16px 40px",fontSize:15,borderRadius:14}}><UserPlus size={18}/> Create Account</Btn>
+      </div>
+      <p style={{marginTop:40,fontSize:12,color:"#5c5c78"}}>Aditya University &middot; ProjectSpace 2026</p>
+    </div></div>}
 
-function EmailPage({role,onSubmit,onBack,loading}){const[email,setEmail]=useState("")
+/* ═══════════════════════════════════════════════════════════════
+   LOGIN PAGE (email + password)
+   ═══════════════════════════════════════════════════════════════ */
+function LoginPage({onSubmit,onBack,loading,prefillEmail}){
+  const[email,setEmail]=useState(prefillEmail||"")
+  const[password,setPassword]=useState("")
+  const[err,setErr]=useState("")
+  const go=()=>{setErr("");if(!email||!password)return setErr("Email and password required");onSubmit(email.trim().toLowerCase(),password)}
   return<div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center"}}><div className="fade-up" style={{background:"#10101a",border:"1px solid #1e1e2e",borderRadius:24,padding:"48px 40px",width:"100%",maxWidth:440,boxShadow:"0 24px 64px rgba(0,0,0,.5)"}}>
-    <div style={{width:56,height:56,borderRadius:16,background:role==="admin"?"linear-gradient(135deg,#ff2d00,#ff6b3d)":"linear-gradient(135deg,#3b82f6,#60a5fa)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 20px"}}>{role==="admin"?<Shield size={26} color="#fff"/>:<User size={26} color="#fff"/>}</div>
-    <h2 style={{fontFamily:"var(--font-display)",fontSize:24,fontWeight:700,textAlign:"center",marginBottom:4}}>{role==="admin"?"Admin Login":"Mentor Login"}</h2>
-    <p style={{textAlign:"center",color:"#9898b0",fontSize:13,marginBottom:32}}>Enter your registered email to receive OTP</p>
-    <FormInput label="Email Address" icon={Mail} value={email} onChange={setEmail} placeholder="your.email@adityauniversity.in" onKeyDown={e=>e.key==="Enter"&&email&&onSubmit(email.trim().toLowerCase())} autoFocus/>
-    <Btn variant={role==="admin"?"admin":"mentor"} onClick={()=>email&&onSubmit(email.trim().toLowerCase())} disabled={loading||!email} style={{width:"100%",justifyContent:"center",padding:16,fontSize:15,borderRadius:14}}>{loading?"Sending...":<><Send size={16}/> Send OTP</>}</Btn>
+    <div style={{width:56,height:56,borderRadius:16,background:"linear-gradient(135deg,#ff2d00,#ff6b3d)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 20px"}}><LogIn size={26} color="#fff"/></div>
+    <h2 style={{fontFamily:"var(--font-display)",fontSize:24,fontWeight:700,textAlign:"center",marginBottom:4}}>Login</h2>
+    <p style={{textAlign:"center",color:"#9898b0",fontSize:13,marginBottom:32}}>Enter your credentials</p>
+    {err&&<div style={{padding:"10px 14px",borderRadius:10,background:"rgba(239,68,68,.08)",border:"1px solid rgba(239,68,68,.2)",color:"#f87171",fontSize:13,marginBottom:16,display:"flex",alignItems:"center",gap:8}}><AlertCircle size={14}/>{err}</div>}
+    <FormInput label="Email" icon={Mail} value={email} onChange={setEmail} placeholder="your.email@adityauniversity.in" disabled={!!prefillEmail} autoFocus={!prefillEmail}/>
+    <FormInput label="Password" icon={Lock} type="password" value={password} onChange={setPassword} placeholder="Enter your password" onKeyDown={e=>e.key==="Enter"&&go()} autoFocus={!!prefillEmail}/>
+    <Btn onClick={go} disabled={loading} style={{width:"100%",justifyContent:"center",padding:16,fontSize:15,borderRadius:14}}>{loading?"Logging in...":<><LogIn size={16}/> Login</>}</Btn>
     <button onClick={onBack} style={{width:"100%",marginTop:14,padding:12,borderRadius:12,border:"1px solid #1e1e2e",background:"transparent",color:"#9898b0",fontSize:14,fontWeight:600,cursor:"pointer",fontFamily:"var(--font-body)",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}><ArrowLeft size={14}/> Back to Home</button>
   </div></div>}
 
+/* ═══════════════════════════════════════════════════════════════
+   CREATE ACCOUNT FLOW - Step 1: Enter Email
+   ═══════════════════════════════════════════════════════════════ */
+function CreateEmailPage({onSubmit,onBack,loading}){
+  const[email,setEmail]=useState("")
+  return<div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center"}}><div className="fade-up" style={{background:"#10101a",border:"1px solid #1e1e2e",borderRadius:24,padding:"48px 40px",width:"100%",maxWidth:440,boxShadow:"0 24px 64px rgba(0,0,0,.5)"}}>
+    <div style={{width:56,height:56,borderRadius:16,background:"linear-gradient(135deg,#3b82f6,#60a5fa)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 20px"}}><UserPlus size={26} color="#fff"/></div>
+    <h2 style={{fontFamily:"var(--font-display)",fontSize:24,fontWeight:700,textAlign:"center",marginBottom:4}}>Create Account</h2>
+    <p style={{textAlign:"center",color:"#9898b0",fontSize:13,marginBottom:32}}>Enter your registered mentor email to verify</p>
+    <FormInput label="Email Address" icon={Mail} value={email} onChange={setEmail} placeholder="your.email@adityauniversity.in" onKeyDown={e=>e.key==="Enter"&&email&&onSubmit(email.trim().toLowerCase())} autoFocus/>
+    <Btn variant="mentor" onClick={()=>email&&onSubmit(email.trim().toLowerCase())} disabled={loading||!email} style={{width:"100%",justifyContent:"center",padding:16,fontSize:15,borderRadius:14}}>{loading?"Sending OTP...":<><Send size={16}/> Send OTP</>}</Btn>
+    <button onClick={onBack} style={{width:"100%",marginTop:14,padding:12,borderRadius:12,border:"1px solid #1e1e2e",background:"transparent",color:"#9898b0",fontSize:14,fontWeight:600,cursor:"pointer",fontFamily:"var(--font-body)",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}><ArrowLeft size={14}/> Back to Home</button>
+  </div></div>}
+
+/* ═══ Step 2: Verify OTP ═══ */
 function OTPPage({email,onVerify,onBack,loading}){const[otp,setOtp]=useState(["","","","","",""]);const refs=useRef([])
   const handle=(i,v)=>{if(v.length>1)v=v[v.length-1];const n=[...otp];n[i]=v;setOtp(n);if(v&&i<5)refs.current[i+1]?.focus()}
   const kd=(i,e)=>{if(e.key==="Backspace"&&!otp[i]&&i>0)refs.current[i-1]?.focus();if(e.key==="Enter"&&otp.every(d=>d))onVerify(otp.join(""))}
@@ -89,29 +116,20 @@ function OTPPage({email,onVerify,onBack,loading}){const[otp,setOtp]=useState([""
     <button onClick={onBack} style={{width:"100%",marginTop:14,padding:12,borderRadius:12,border:"1px solid #1e1e2e",background:"transparent",color:"#9898b0",fontSize:14,fontWeight:600,cursor:"pointer",fontFamily:"var(--font-body)",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}><ArrowLeft size={14}/> Back</button>
   </div></div>}
 
+/* ═══ Step 3: Create Password ═══ */
 function CreatePasswordPage({email,onSubmit,loading}){const[pw,setPw]=useState("");const[cf,setCf]=useState("");const[err,setErr]=useState("")
-  const go=()=>{setErr("");if(!pw)return setErr("Password required");if(pw.length<6)return setErr("Min 6 characters");if(pw!==cf)return setErr("Passwords don't match");onSubmit(pw)}
+  const go=()=>{setErr("");if(!pw)return setErr("Password required");if(pw.length<6)return setErr("Min 6 characters");if(!/[A-Z]/.test(pw))return setErr("Need at least 1 uppercase letter");if(!/[0-9]/.test(pw))return setErr("Need at least 1 number");if(pw!==cf)return setErr("Passwords don't match");onSubmit(pw)}
   return<div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center"}}><div className="fade-up" style={{background:"#10101a",border:"1px solid #1e1e2e",borderRadius:24,padding:"48px 40px",width:"100%",maxWidth:440,boxShadow:"0 24px 64px rgba(0,0,0,.5)"}}>
     <div style={{width:56,height:56,borderRadius:16,background:"linear-gradient(135deg,#22c55e,#10b981)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 20px"}}><Lock size={26} color="#fff"/></div>
     <h2 style={{fontFamily:"var(--font-display)",fontSize:24,fontWeight:700,textAlign:"center",marginBottom:4}}>Create Password</h2>
-    <p style={{textAlign:"center",color:"#9898b0",fontSize:13,marginBottom:8}}>Set a password for your account</p>
-    <p style={{textAlign:"center",color:"#ff2d00",fontSize:12,fontWeight:600,marginBottom:28}}>{email}</p>
+    <p style={{textAlign:"center",color:"#ff2d00",fontSize:12,fontWeight:600,marginBottom:8}}>{email}</p>
+    <div style={{padding:"10px 14px",borderRadius:10,background:"rgba(59,130,246,.06)",border:"1px solid rgba(59,130,246,.15)",color:"#60a5fa",fontSize:11,marginBottom:20,lineHeight:1.6}}>
+      Password must have: min 6 chars, 1 uppercase, 1 number
+    </div>
     {err&&<div style={{padding:"10px 14px",borderRadius:10,background:"rgba(239,68,68,.08)",border:"1px solid rgba(239,68,68,.2)",color:"#f87171",fontSize:13,marginBottom:16,display:"flex",alignItems:"center",gap:8}}><AlertCircle size={14}/>{err}</div>}
     <FormInput label="New Password" icon={Lock} type="password" value={pw} onChange={setPw} placeholder="Min 6 characters" onKeyDown={e=>e.key==="Enter"&&go()}/>
     <FormInput label="Confirm Password" icon={Lock} type="password" value={cf} onChange={setCf} placeholder="Re-enter password" onKeyDown={e=>e.key==="Enter"&&go()}/>
-    <Btn onClick={go} disabled={loading} style={{width:"100%",justifyContent:"center",padding:16,fontSize:15,borderRadius:14,background:"linear-gradient(135deg,#22c55e,#10b981)",boxShadow:"0 4px 16px rgba(34,197,94,.3)"}}>{loading?"Creating...":<><CheckCircle2 size={16}/> Create Password & Login</>}</Btn>
-  </div></div>}
-
-function PasswordLoginPage({email,mentor,onSubmit,onBack,loading}){const[pw,setPw]=useState("");const[err,setErr]=useState("")
-  const go=()=>{setErr("");if(!pw)return setErr("Password required");onSubmit(pw)}
-  return<div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center"}}><div className="fade-up" style={{background:"#10101a",border:"1px solid #1e1e2e",borderRadius:24,padding:"48px 40px",width:"100%",maxWidth:440,boxShadow:"0 24px 64px rgba(0,0,0,.5)"}}>
-    <div style={{margin:"0 auto 16px",display:"flex",justifyContent:"center"}}><Avatar name={mentor?.name||email} size={56}/></div>
-    <h2 style={{fontFamily:"var(--font-display)",fontSize:22,fontWeight:700,textAlign:"center",marginBottom:4}}>Welcome back</h2>
-    <p style={{textAlign:"center",color:"#ff2d00",fontSize:14,fontWeight:700,marginBottom:28}}>{mentor?.name||email}</p>
-    {err&&<div style={{padding:"10px 14px",borderRadius:10,background:"rgba(239,68,68,.08)",border:"1px solid rgba(239,68,68,.2)",color:"#f87171",fontSize:13,marginBottom:16,display:"flex",alignItems:"center",gap:8}}><AlertCircle size={14}/>{err}</div>}
-    <FormInput label="Password" icon={Lock} type="password" value={pw} onChange={setPw} placeholder="Enter your password" onKeyDown={e=>e.key==="Enter"&&go()} autoFocus/>
-    <Btn onClick={go} disabled={loading} style={{width:"100%",justifyContent:"center",padding:16,fontSize:15,borderRadius:14}}>{loading?"Logging in...":<><LogIn size={16}/> Login</>}</Btn>
-    <button onClick={onBack} style={{width:"100%",marginTop:14,padding:12,borderRadius:12,border:"1px solid #1e1e2e",background:"transparent",color:"#9898b0",fontSize:14,fontWeight:600,cursor:"pointer",fontFamily:"var(--font-body)",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}><ArrowLeft size={14}/> Back to Home</button>
+    <Btn onClick={go} disabled={loading} style={{width:"100%",justifyContent:"center",padding:16,fontSize:15,borderRadius:14,background:"linear-gradient(135deg,#22c55e,#10b981)",boxShadow:"0 4px 16px rgba(34,197,94,.3)"}}>{loading?"Creating...":<><CheckCircle2 size={16}/> Create Password</>}</Btn>
   </div></div>}
 
 /* ═══ STAT CARD ═══ */
@@ -134,7 +152,7 @@ function TaskCard({task,index,onClick}){const c=CARD_COLORS[index%CARD_COLORS.le
       {task.responsible?<><Avatar name={task.responsible.name} size={22}/><span style={{fontSize:12,color:"#9898b0",fontWeight:500}}>{task.responsible.name}</span></>
         :<span style={{fontSize:12,color:"#5c5c78",fontStyle:"italic"}}>Unassigned</span>}</div></div>}
 
-/* ═══ STAGE CARD (Kanban) ═══ */
+/* ═══ STAGE CARD ═══ */
 function StageCard({stage,idx,colKey,onDragStart,canDrag,onEdit,onDelete,canEdit,mentors,teamMembers,onAssign}){
   const assigned=stage.assignedTo?[...mentors,...teamMembers].find(m=>m.email===stage.assignedTo):null
   return<div draggable={canDrag} onDragStart={e=>{if(!canDrag){e.preventDefault();return}onDragStart(e,idx,colKey)}}
@@ -162,29 +180,24 @@ function KanbanBoard({task,mentors,onClose,onUpdate,isAdmin,currentUser,addToast
   const canManage=isAdmin||isResp
   const allTeam=[...(task.responsible?[task.responsible]:[]),...(task.teamMembers||[])]
   const uniqueTeam=[...new Map(allTeam.map(m=>[m.email,m])).values()]
-
   const stages=task.stages||[]
-  const todo=stages.filter(s=>s.status==="todo"||s.status==="pending"||!s.status)
-  const progress=stages.filter(s=>s.status==="progress")
-  const completed=stages.filter(s=>s.status==="completed"||s.status==="done")
+  const norm=s=>{const st=s.status;return(!st||st==="pending"||st==="todo")?"todo":st==="done"?"completed":st}
+  const todo=stages.filter(s=>norm(s)==="todo")
+  const progress=stages.filter(s=>norm(s)==="progress")
+  const completed=stages.filter(s=>norm(s)==="completed")
+  const[dragItem,setDragItem]=useState(null);const[newStage,setNewStage]=useState("")
+  const[editIdx,setEditIdx]=useState(null);const[editCol,setEditCol]=useState(null);const[editTitle,setEditTitle]=useState("")
 
-  const[dragItem,setDragItem]=useState(null)
-  const[newStage,setNewStage]=useState("")
-  const[editIdx,setEditIdx]=useState(null)
-  const[editCol,setEditCol]=useState(null)
-  const[editTitle,setEditTitle]=useState("")
-
-  const getCol=(col)=>col==="todo"?todo:col==="progress"?progress:completed
+  const getCol=col=>col==="todo"?todo:col==="progress"?progress:completed
 
   const saveStages=async(ns)=>{try{const r=await fetch(`/api/tasks/${task._id}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({stages:ns})})
     if(r.ok){onUpdate();addToast("Updated","success")}else addToast("Failed","error")}catch{addToast("Network error","error")}}
 
   const onDragStart=(e,idx,col)=>{setDragItem({idx,col});e.dataTransfer.effectAllowed="move"}
-  const onDragOver=(e)=>{e.preventDefault();e.dataTransfer.dropEffect="move"}
+  const onDragOver=e=>{e.preventDefault();e.dataTransfer.dropEffect="move"}
   const onDrop=(e,targetCol)=>{e.preventDefault();if(!dragItem)return;const{idx,col:src}=dragItem;if(src===targetCol){setDragItem(null);return}
     const srcS=getCol(src);const stage=srcS[idx];if(!stage){setDragItem(null);return}
     if(!canManage&&stage.assignedTo!==currentUser?.email){addToast("You can only move your assigned stages","warning");setDragItem(null);return}
-    const norm=s=>{const st=s.status;return st==="pending"||!st?"todo":st==="done"?"completed":st}
     const all=stages.map(s=>{if(s.title===stage.title&&norm(s)===src&&s.assignedTo===stage.assignedTo)
       return{...s,status:targetCol,completedAt:targetCol==="completed"?new Date().toISOString():targetCol==="todo"?null:s.completedAt};return s})
     saveStages(all);setDragItem(null)}
@@ -193,27 +206,22 @@ function KanbanBoard({task,mentors,onClose,onUpdate,isAdmin,currentUser,addToast
     const assignTo=canManage?null:currentUser?.email
     saveStages([...stages,{title:newStage.trim(),status:"todo",comment:"",completedAt:null,assignedTo:assignTo,createdAt:new Date().toISOString()}]);setNewStage("")}
 
-  const deleteStage=(idx,col)=>{const s=getCol(col)[idx];const norm=x=>{const st=x.status;return st==="pending"||!st?"todo":st==="done"?"completed":st}
-    saveStages(stages.filter(x=>!(x.title===s.title&&norm(x)===col&&x.assignedTo===s.assignedTo)))}
-
+  const deleteStage=(idx,col)=>{const s=getCol(col)[idx];saveStages(stages.filter(x=>!(x.title===s.title&&norm(x)===col&&x.assignedTo===s.assignedTo)))}
   const startEdit=(idx,col)=>{setEditIdx(idx);setEditCol(col);setEditTitle(getCol(col)[idx].title)}
-  const saveEdit=()=>{if(!editTitle.trim())return;const s=getCol(editCol)[editIdx];const norm=x=>{const st=x.status;return st==="pending"||!st?"todo":st==="done"?"completed":st}
-    saveStages(stages.map(x=>(x.title===s.title&&norm(x)===editCol&&x.assignedTo===s.assignedTo)?{...x,title:editTitle.trim()}:x));setEditIdx(null);setEditCol(null)}
-
-  const assignStage=(idx,col,email)=>{const s=getCol(col)[idx];const norm=x=>{const st=x.status;return st==="pending"||!st?"todo":st==="done"?"completed":st}
-    const m=mentors.find(x=>x.email===email);saveStages(stages.map(x=>(x.title===s.title&&norm(x)===col)?{...x,assignedTo:email}:x))
-    if(m)addToast(`Assigned to ${m.name}`,"success")}
+  const saveEdit=()=>{if(!editTitle.trim())return;const s=getCol(editCol)[editIdx];saveStages(stages.map(x=>(x.title===s.title&&norm(x)===editCol&&x.assignedTo===s.assignedTo)?{...x,title:editTitle.trim()}:x));setEditIdx(null);setEditCol(null)}
+  const assignStage=(idx,col,email)=>{const s=getCol(col)[idx];const m=mentors.find(x=>x.email===email);saveStages(stages.map(x=>(x.title===s.title&&norm(x)===col)?{...x,assignedTo:email}:x));if(m)addToast(`Assigned to ${m.name}`,"success")}
 
   const assignResp=async(email)=>{const m=mentors.find(x=>x.email===email);if(!m)return
     try{await fetch(`/api/tasks/${task._id}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({responsible:{name:m.name,email:m.email}})});onUpdate();addToast(`${m.name} set as responsible`,"success")
-      fetch("/api/notifications",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({type:"assigned",taskTitle:task.title,mentorEmail:m.email,mentorName:m.name,message:`You are responsible for "${task.title}"`})})}catch{addToast("Failed","error")}}
+      fetch("/api/auth",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"notify-assignment",mentorEmail:m.email,mentorName:m.name,taskTitle:task.title,assignRole:"responsible"})})}catch{addToast("Failed","error")}}
 
   const addTM=async(email)=>{const m=mentors.find(x=>x.email===email);if(!m||(task.teamMembers||[]).find(t=>t.email===email))return
-    try{await fetch(`/api/tasks/${task._id}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({teamMembers:[...(task.teamMembers||[]),{name:m.name,email:m.email}]})});onUpdate();addToast(`${m.name} added`,"success")}catch{addToast("Failed","error")}}
+    try{await fetch(`/api/tasks/${task._id}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({teamMembers:[...(task.teamMembers||[]),{name:m.name,email:m.email}]})});onUpdate();addToast(`${m.name} added`,"success")
+      fetch("/api/auth",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"notify-assignment",mentorEmail:m.email,mentorName:m.name,taskTitle:task.title,assignRole:"team"})})}catch{addToast("Failed","error")}}
 
   const rmTM=async(email)=>{try{await fetch(`/api/tasks/${task._id}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({teamMembers:(task.teamMembers||[]).filter(t=>t.email!==email)})});onUpdate();addToast("Removed","success")}catch{addToast("Failed","error")}}
 
-  const renderCol=(colKey)=>{const st=COL_STYLES[colKey];const items=getCol(colKey)
+  const renderCol=colKey=>{const st=COL_STYLES[colKey];const items=getCol(colKey)
     return<div onDragOver={onDragOver} onDrop={e=>onDrop(e,colKey)} style={{flex:1,minWidth:260,background:st.bg,border:`1px solid ${st.border}`,borderRadius:16,display:"flex",flexDirection:"column",minHeight:300}}>
       <div style={{padding:"16px 18px 12px",borderBottom:`1px solid ${st.border}`,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
         <div style={{display:"flex",alignItems:"center",gap:8}}><div style={{width:8,height:8,borderRadius:"50%",background:st.color}}/><h3 style={{fontFamily:"var(--font-display)",fontSize:13,fontWeight:700,color:st.color}}>{st.label}</h3></div>
@@ -225,8 +233,7 @@ function KanbanBoard({task,mentors,onClose,onUpdate,isAdmin,currentUser,addToast
             <div style={{display:"flex",gap:6}}><button onClick={saveEdit} style={{background:"rgba(34,197,94,.1)",border:"1px solid rgba(34,197,94,.3)",borderRadius:8,padding:"6px 12px",color:"#4ade80",fontSize:12,fontWeight:700,cursor:"pointer",display:"flex",alignItems:"center",gap:4}}><Check size={12}/>Save</button>
               <button onClick={()=>{setEditIdx(null);setEditCol(null)}} style={{background:"transparent",border:"1px solid #2e2e42",borderRadius:8,padding:"6px 12px",color:"#9898b0",fontSize:12,fontWeight:700,cursor:"pointer"}}>Cancel</button></div></div>
           return<StageCard key={idx} stage={stage} idx={idx} colKey={colKey} onDragStart={onDragStart} canDrag={canDrag} onEdit={startEdit} onDelete={deleteStage} canEdit={canManage} mentors={mentors} teamMembers={uniqueTeam} onAssign={assignStage}/>})}
-        {items.length===0&&<div style={{textAlign:"center",padding:"24px 12px",color:"#3a3a52",fontSize:12}}><p>Drag stages here</p></div>}
-      </div></div>}
+        {items.length===0&&<div style={{textAlign:"center",padding:"24px 12px",color:"#3a3a52",fontSize:12}}><p>Drag stages here</p></div>}</div></div>}
 
   return<div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.75)",backdropFilter:"blur(8px)",zIndex:1000,overflow:"auto"}} onClick={onClose}>
     <div className="scale-in" onClick={e=>e.stopPropagation()} style={{background:"#0a0a14",minHeight:"100vh",maxWidth:1200,margin:"0 auto",borderLeft:"1px solid #1e1e2e",borderRight:"1px solid #1e1e2e"}}>
@@ -265,14 +272,12 @@ function AdminDashboard({user,tasks,mentors,onLogout,onRefresh,addToast}){const[
   const totalS=tasks.reduce((a,t)=>a+(t.stages||[]).length,0);const doneS=tasks.reduce((a,t)=>a+(t.stages||[]).filter(s=>s.status==="completed"||s.status==="done").length,0)
   const progS=tasks.reduce((a,t)=>a+(t.stages||[]).filter(s=>s.status==="progress").length,0);const assigned=tasks.filter(t=>t.responsible).length
   const activeTask=openTask?tasks.find(t=>t._id===openTask):null
-
   return<div style={{minHeight:"100vh"}}><div style={{padding:"16px 28px",borderBottom:"1px solid #1e1e2e",display:"flex",justifyContent:"space-between",alignItems:"center",background:"#0a0a14"}}>
     <div style={{display:"flex",alignItems:"center",gap:12}}><div style={{width:36,height:36,borderRadius:10,background:"linear-gradient(135deg,#ff2d00,#ff6b3d)",display:"flex",alignItems:"center",justifyContent:"center"}}><ClipboardList size={18} color="#fff"/></div>
       <div><h1 style={{fontFamily:"var(--font-display)",fontSize:16,fontWeight:800}}>ProjectSpace</h1><p style={{fontSize:11,color:"#5c5c78"}}>Admin Dashboard</p></div></div>
     <div style={{display:"flex",alignItems:"center",gap:14}}>
       <div style={{padding:"6px 14px",borderRadius:8,background:"rgba(255,45,0,.08)",border:"1px solid rgba(255,45,0,.2)",display:"flex",alignItems:"center",gap:6}}><Shield size={13} color="#ff2d00"/><span style={{fontSize:12,fontWeight:700,color:"#ff2d00"}}>Admin</span></div>
       <Avatar name={user.name} size={32}/><span style={{fontSize:13,color:"#9898b0",fontWeight:600}}>{user.name}</span><Btn variant="ghost" onClick={onLogout}><LogOut size={15}/></Btn></div></div>
-
     <div style={{padding:"24px 28px",maxWidth:1200,margin:"0 auto"}}>
       <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))",gap:14,marginBottom:28}}>
         <StatCard icon={ClipboardList} value={tasks.length} label="Total Tasks"/><StatCard icon={Users} value={assigned} label="Assigned" color="#3b82f6"/>
@@ -285,18 +290,19 @@ function AdminDashboard({user,tasks,mentors,onLogout,onRefresh,addToast}){const[
 
 /* ═══ MENTOR DASHBOARD ═══ */
 function MentorDashboard({user,tasks,mentors,onLogout,onRefresh,addToast}){const[search,setSearch]=useState("");const[openTask,setOpenTask]=useState(null)
+  // Auto-refresh every 30 seconds to get new assignments
+  useEffect(()=>{const interval=setInterval(onRefresh,30000);return()=>clearInterval(interval)},[onRefresh])
+
   const myTasks=tasks.filter(t=>(t.responsible?.email===user.email)||(t.teamMembers||[]).some(m=>m.email===user.email))
   const filtered=myTasks.filter(t=>{const q=search.toLowerCase();if(!q)return true;return t.title.toLowerCase().includes(q)})
   const totalS=myTasks.reduce((a,t)=>a+(t.stages||[]).length,0);const doneS=myTasks.reduce((a,t)=>a+(t.stages||[]).filter(s=>s.status==="completed"||s.status==="done").length,0)
   const resp=myTasks.filter(t=>t.responsible?.email===user.email).length;const activeTask=openTask?tasks.find(t=>t._id===openTask):null
-
   return<div style={{minHeight:"100vh"}}><div style={{padding:"16px 28px",borderBottom:"1px solid #1e1e2e",display:"flex",justifyContent:"space-between",alignItems:"center",background:"#0a0a14"}}>
     <div style={{display:"flex",alignItems:"center",gap:12}}><div style={{width:36,height:36,borderRadius:10,background:"linear-gradient(135deg,#3b82f6,#60a5fa)",display:"flex",alignItems:"center",justifyContent:"center"}}><ClipboardList size={18} color="#fff"/></div>
       <div><h1 style={{fontFamily:"var(--font-display)",fontSize:16,fontWeight:800}}>ProjectSpace</h1><p style={{fontSize:11,color:"#5c5c78"}}>Mentor Portal</p></div></div>
     <div style={{display:"flex",alignItems:"center",gap:14}}>
       <div style={{padding:"6px 14px",borderRadius:8,background:"rgba(59,130,246,.08)",border:"1px solid rgba(59,130,246,.2)",display:"flex",alignItems:"center",gap:6}}><User size={13} color="#3b82f6"/><span style={{fontSize:12,fontWeight:700,color:"#3b82f6"}}>Mentor</span></div>
       <Avatar name={user.name} size={32}/><span style={{fontSize:13,color:"#9898b0",fontWeight:600}}>{user.name}</span><Btn variant="ghost" onClick={onLogout}><LogOut size={15}/></Btn></div></div>
-
     <div style={{padding:"24px 28px",maxWidth:1200,margin:"0 auto"}}>
       <div style={{marginBottom:24,padding:"20px 24px",background:"#10101a",border:"1px solid #1e1e2e",borderRadius:16}}>
         <h2 style={{fontFamily:"var(--font-display)",fontSize:22,fontWeight:800,marginBottom:4}}>Welcome, {user.name}</h2><p style={{color:"#5c5c78",fontSize:14}}>{user.email}</p></div>
@@ -311,9 +317,10 @@ function MentorDashboard({user,tasks,mentors,onLogout,onRefresh,addToast}){const
 
 /* ═══ MAIN APP ═══ */
 export default function App(){
-  const[page,setPage]=useState("landing");const[loginRole,setLoginRole]=useState("mentor");const[email,setEmail]=useState("")
-  const[user,setUser]=useState(null);const[otpMentor,setOtpMentor]=useState(null);const[tasks,setTasks]=useState([]);const[mentors,setMentors]=useState([])
+  const[page,setPage]=useState("landing")
+  const[email,setEmail]=useState("");const[user,setUser]=useState(null);const[tasks,setTasks]=useState([]);const[mentors,setMentors]=useState([])
   const[loading,setLoading]=useState(false);const[seeded,setSeeded]=useState(false);const{toasts,addToast}=useToast()
+  const[prefillEmail,setPrefillEmail]=useState("")
 
   const fetchData=useCallback(async()=>{try{const[tR,mR]=await Promise.all([fetch("/api/tasks"),fetch("/api/mentors")])
     if(tR.ok)setTasks(await tR.json());if(mR.ok)setMentors(await mR.json())}catch(e){console.error(e)}},[])
@@ -325,23 +332,37 @@ export default function App(){
 
   useEffect(()=>{if(page==="admin"||page==="mentor")fetchData()},[page,fetchData])
 
-  const handleSendOTP=async(em)=>{setLoading(true);try{const r=await fetch("/api/auth",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"send-otp",email:em})});const d=await r.json()
-    if(r.ok){setEmail(em);if(d.demo_otp)addToast(`OTP: ${d.demo_otp} (email not configured)`,"warning");else addToast("OTP sent!","success");setPage("otp")}else addToast(d.error,"error")}catch{addToast("Network error","error")};setLoading(false)}
-  const handleVerifyOTP=async(otp)=>{setLoading(true);try{const r=await fetch("/api/auth",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"verify-otp",email,otp})});const d=await r.json()
-    if(r.ok){setOtpMentor(d.mentor);if(d.hasPassword){addToast("OTP verified! Enter password.","success");setPage("password-login")}else{addToast("OTP verified! Create password.","success");setPage("create-password")}}else addToast(d.error,"error")}catch{addToast("Network error","error")};setLoading(false)}
-  const handleCreatePassword=async(pw)=>{setLoading(true);try{const r=await fetch("/api/auth",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"create-password",email,password:pw})});const d=await r.json()
-    if(r.ok){addToast(`Welcome, ${d.mentor.name}!`,"success");setUser(d.mentor);setPage(d.mentor.role==="admin"?"admin":"mentor")}else addToast(d.error,"error")}catch{addToast("Network error","error")};setLoading(false)}
-  const handlePasswordLogin=async(pw)=>{setLoading(true);try{const r=await fetch("/api/auth",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"login-password",email,password:pw})});const d=await r.json()
-    if(r.ok){addToast(`Welcome back, ${d.mentor.name}!`,"success");setUser(d.mentor);setPage(d.mentor.role==="admin"?"admin":"mentor")}else addToast(d.error,"error")}catch{addToast("Network error","error")};setLoading(false)}
-  const handleLogout=()=>{setUser(null);setOtpMentor(null);setEmail("");setPage("landing")}
-  const goHome=()=>{setEmail("");setOtpMentor(null);setPage("landing")}
+  // ── Create Account Flow ──
+  // Step 1: Enter email → send OTP
+  const handleCreateSendOTP=async(em)=>{setLoading(true);try{
+    const r=await fetch("/api/auth",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"send-otp",email:em})});const d=await r.json()
+    if(r.ok){setEmail(em);if(d.demo_otp)addToast(`OTP: ${d.demo_otp} (check email config)`,"warning");else addToast("OTP sent to your email!","success");setPage("otp")}
+    else addToast(d.error,"error")}catch{addToast("Network error","error")};setLoading(false)}
+
+  // Step 2: Verify OTP
+  const handleVerifyOTP=async(otp)=>{setLoading(true);try{
+    const r=await fetch("/api/auth",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"verify-otp",email,otp})});const d=await r.json()
+    if(r.ok){addToast("OTP verified! Create your password.","success");setPage("create-password")}else addToast(d.error,"error")}catch{addToast("Network error","error")};setLoading(false)}
+
+  // Step 3: Create password → redirect to login with email pre-filled
+  const handleCreatePassword=async(pw)=>{setLoading(true);try{
+    const r=await fetch("/api/auth",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"create-password",email,password:pw})});const d=await r.json()
+    if(r.ok){addToast("Password created! Please login.","success");setPrefillEmail(email);setPage("login")}else addToast(d.error,"error")}catch{addToast("Network error","error")};setLoading(false)}
+
+  // ── Login Flow ──
+  const handleLogin=async(em,pw)=>{setLoading(true);try{
+    const r=await fetch("/api/auth",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"login",email:em,password:pw})});const d=await r.json()
+    if(r.ok){addToast(`Welcome, ${d.mentor.name}!`,"success");setUser(d.mentor);setPrefillEmail("");setPage(d.mentor.role==="admin"?"admin":"mentor")}else addToast(d.error,"error")}catch{addToast("Network error","error")};setLoading(false)}
+
+  const handleLogout=()=>{setUser(null);setEmail("");setPrefillEmail("");setPage("landing")}
+  const goHome=()=>{setEmail("");setPrefillEmail("");setPage("landing")}
 
   return<><Toasts toasts={toasts}/>
-    {page==="landing"&&<LandingPage onAdmin={()=>{setLoginRole("admin");setPage("email")}} onMentor={()=>{setLoginRole("mentor");setPage("email")}}/>}
-    {page==="email"&&<EmailPage role={loginRole} onSubmit={handleSendOTP} onBack={goHome} loading={loading}/>}
-    {page==="otp"&&<OTPPage email={email} onVerify={handleVerifyOTP} onBack={()=>setPage("email")} loading={loading}/>}
+    {page==="landing"&&<LandingPage onLogin={()=>setPage("login")} onCreateAccount={()=>setPage("create-email")}/>}
+    {page==="login"&&<LoginPage onSubmit={handleLogin} onBack={goHome} loading={loading} prefillEmail={prefillEmail}/>}
+    {page==="create-email"&&<CreateEmailPage onSubmit={handleCreateSendOTP} onBack={goHome} loading={loading}/>}
+    {page==="otp"&&<OTPPage email={email} onVerify={handleVerifyOTP} onBack={()=>setPage("create-email")} loading={loading}/>}
     {page==="create-password"&&<CreatePasswordPage email={email} onSubmit={handleCreatePassword} loading={loading}/>}
-    {page==="password-login"&&<PasswordLoginPage email={email} mentor={otpMentor} onSubmit={handlePasswordLogin} onBack={goHome} loading={loading}/>}
     {page==="admin"&&user&&<AdminDashboard user={user} tasks={tasks} mentors={mentors} onLogout={handleLogout} onRefresh={fetchData} addToast={addToast}/>}
     {page==="mentor"&&user&&<MentorDashboard user={user} tasks={tasks} mentors={mentors} onLogout={handleLogout} onRefresh={fetchData} addToast={addToast}/>}
   </>}
