@@ -1,7 +1,6 @@
 import { getDb } from '@/lib/mongodb'
 import { NextResponse } from 'next/server'
 import crypto from 'crypto'
-import nodemailer from 'nodemailer'
 
 const ADMIN_EMAILS = [
   'harshavardhini.j@adityauniversity.in',
@@ -18,18 +17,48 @@ function generateOTP() {
 }
 
 async function sendOTPEmail(email, otp, name) {
+  const smtpUser = process.env.SMTP_USER
+  const smtpPass = process.env.SMTP_PASS
+  const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com'
+  const smtpPort = process.env.SMTP_PORT || '587'
+  const smtpFrom = process.env.SMTP_FROM || smtpUser
+
+  console.log('=== EMAIL DEBUG ===')
+  console.log('SMTP_HOST:', smtpHost)
+  console.log('SMTP_PORT:', smtpPort)
+  console.log('SMTP_USER:', smtpUser ? smtpUser : 'NOT SET')
+  console.log('SMTP_PASS:', smtpPass ? '****SET****' : 'NOT SET')
+  console.log('SMTP_FROM:', smtpFrom)
+  console.log('Sending to:', email)
+  console.log('===================')
+
+  if (!smtpUser || !smtpPass) {
+    console.error('SMTP credentials not configured - SMTP_USER or SMTP_PASS is missing')
+    return false
+  }
+
   try {
+    const nodemailer = (await import('nodemailer')).default
+
     const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST || 'smtp.gmail.com',
-      port: parseInt(process.env.SMTP_PORT || '587'),
+      host: smtpHost,
+      port: parseInt(smtpPort),
       secure: false,
       auth: {
-        user: process.env.SMTP_USER || '',
-        pass: process.env.SMTP_PASS || '',
+        user: smtpUser,
+        pass: smtpPass,
       },
+      tls: {
+        rejectUnauthorized: false
+      }
     })
-    await transporter.sendMail({
-      from: process.env.SMTP_FROM || process.env.SMTP_USER || 'noreply@projectspace.com',
+
+    // Verify connection first
+    await transporter.verify()
+    console.log('SMTP connection verified successfully')
+
+    const info = await transporter.sendMail({
+      from: smtpFrom,
       to: email,
       subject: 'ProjectSpace - Your Login OTP',
       html: `
@@ -45,9 +74,16 @@ async function sendOTPEmail(email, otp, name) {
         </div>
       `,
     })
+
+    console.log('Email sent successfully! MessageId:', info.messageId)
     return true
   } catch (err) {
-    console.error('Email send error:', err)
+    console.error('=== EMAIL SEND FAILED ===')
+    console.error('Error name:', err.name)
+    console.error('Error message:', err.message)
+    console.error('Error code:', err.code)
+    console.error('Full error:', err)
+    console.error('=========================')
     return false
   }
 }
@@ -70,19 +106,27 @@ export async function POST(req) {
       }
 
       const otp = generateOTP()
-      const expiresAt = new Date(Date.now() + 10 * 60 * 1000) // 10 min
+      const expiresAt = new Date(Date.now() + 10 * 60 * 1000)
 
       await db.collection('task_otps').deleteMany({ email: emailLower })
       await db.collection('task_otps').insertOne({ email: emailLower, otp, expiresAt, createdAt: new Date() })
 
       const emailSent = await sendOTPEmail(emailLower, otp, mentor.name)
 
-      return NextResponse.json({
-        success: true,
-        message: emailSent ? 'OTP sent to your email' : 'OTP generated (email service unavailable)',
-        demo_otp: emailSent ? undefined : otp,
-        hasPassword: !!mentor.passwordHash,
-      })
+      if (emailSent) {
+        return NextResponse.json({
+          success: true,
+          message: 'OTP sent to your email',
+          hasPassword: !!mentor.passwordHash,
+        })
+      } else {
+        return NextResponse.json({
+          success: true,
+          message: 'OTP generated (email service unavailable)',
+          demo_otp: otp,
+          hasPassword: !!mentor.passwordHash,
+        })
+      }
     }
 
     // ── VERIFY OTP ──
@@ -111,7 +155,7 @@ export async function POST(req) {
       })
     }
 
-    // ── CREATE PASSWORD (first time after OTP verify) ──
+    // ── CREATE PASSWORD ──
     if (action === 'create-password') {
       const { email, password } = body
       if (!email || !password) return NextResponse.json({ error: 'Email and password required' }, { status: 400 })
@@ -134,7 +178,7 @@ export async function POST(req) {
       })
     }
 
-    // ── LOGIN WITH PASSWORD (returning user after OTP verify) ──
+    // ── LOGIN WITH PASSWORD ──
     if (action === 'login-password') {
       const { email, password } = body
       if (!email || !password) return NextResponse.json({ error: 'Email and password required' }, { status: 400 })
