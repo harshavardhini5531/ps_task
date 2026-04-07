@@ -56,7 +56,7 @@ function SearchDropdown({label,options,value,onChange,placeholder,renderOption})
         {filtered.map((o,i)=><button key={i} onClick={()=>{onChange(o.value||o.email);setOpen(false);setSearch("")}}
           style={{width:"100%",padding:"10px 14px",background:"transparent",border:"none",borderBottom:"1px solid #1a1a28",color:"#f0eff4",fontSize:13,fontFamily:"var(--font-body)",cursor:"pointer",display:"flex",alignItems:"center",gap:10,textAlign:"left",transition:"background .15s"}}
           onMouseEnter={e=>e.currentTarget.style.background="rgba(255,45,0,.06)"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
-          <Avatar name={o.label||o.name} size={24}/><div><div style={{fontWeight:600}}>{o.label||o.name}</div>{o.email&&<div style={{fontSize:11,color:"#5c5c78",marginTop:1}}>{o.email}</div>}</div>
+          <Avatar name={o.label||o.name} size={24}/><span style={{fontWeight:600}}>{o.label||o.name}</span>
         </button>)}</div>
     </div>}
   </div>}
