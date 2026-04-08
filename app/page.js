@@ -72,12 +72,14 @@ function LandingPage({onLogin,onCreateAccount}){return<div style={{minHeight:"10
       <Btn variant="admin" onClick={onLogin} style={{padding:"16px 40px",fontSize:15,borderRadius:14}}><LogIn size={18}/> Login</Btn>
       <Btn variant="mentor" onClick={onCreateAccount} style={{padding:"16px 40px",fontSize:15,borderRadius:14}}><UserPlus size={18}/> Create Account</Btn>
     </div>
+    <p style={{marginTop:16,fontSize:12,color:"#3a3a52"}}>Admin &amp; Mentor portals available</p>
     <p style={{marginTop:40,fontSize:12,color:"#5c5c78"}}>Aditya University &middot; ProjectSpace 2026</p>
   </div></div>}
 
-function RolePickPage({onPick,onBack}){return<div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center"}}><div className="fade-up" style={{background:"#10101a",border:"1px solid #1e1e2e",borderRadius:24,padding:"48px 40px",width:"100%",maxWidth:440,textAlign:"center",boxShadow:"0 24px 64px rgba(0,0,0,.5)"}}>
-  <div style={{width:56,height:56,borderRadius:16,background:"linear-gradient(135deg,#8b5cf6,#6d28d9)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 20px"}}><UserPlus size={26} color="#fff"/></div>
-  <h2 style={{fontFamily:"var(--font-display)",fontSize:24,fontWeight:700,marginBottom:4}}>Create Account</h2><p style={{color:"#9898b0",fontSize:13,marginBottom:32}}>Select your role</p>
+function RolePickPage({onPick,onBack,mode}){const isLogin=mode==="login"
+  return<div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center"}}><div className="fade-up" style={{background:"#10101a",border:"1px solid #1e1e2e",borderRadius:24,padding:"48px 40px",width:"100%",maxWidth:440,textAlign:"center",boxShadow:"0 24px 64px rgba(0,0,0,.5)"}}>
+  <div style={{width:56,height:56,borderRadius:16,background:isLogin?"linear-gradient(135deg,#ff2d00,#ff6b3d)":"linear-gradient(135deg,#8b5cf6,#6d28d9)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 20px"}}>{isLogin?<LogIn size={26} color="#fff"/>:<UserPlus size={26} color="#fff"/>}</div>
+  <h2 style={{fontFamily:"var(--font-display)",fontSize:24,fontWeight:700,marginBottom:4}}>{isLogin?"Login":"Create Account"}</h2><p style={{color:"#9898b0",fontSize:13,marginBottom:32}}>Select your role</p>
   <div style={{display:"flex",flexDirection:"column",gap:12}}>
     <button onClick={()=>onPick("admin")} style={{padding:"18px 24px",borderRadius:14,border:"1px solid rgba(255,45,0,.25)",background:"rgba(255,45,0,.06)",color:"#f0eff4",fontSize:15,fontWeight:700,cursor:"pointer",fontFamily:"var(--font-body)",display:"flex",alignItems:"center",gap:14,transition:"all .2s"}} onMouseEnter={e=>e.currentTarget.style.background="rgba(255,45,0,.12)"} onMouseLeave={e=>e.currentTarget.style.background="rgba(255,45,0,.06)"}>
       <div style={{width:42,height:42,borderRadius:12,background:"linear-gradient(135deg,#ff2d00,#ff6b3d)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><Shield size={20} color="#fff"/></div>
@@ -343,15 +345,17 @@ export default function App(){const[page,setPage]=useState("landing");const[emai
 
   const handleCreateSendOTP=async em=>{setLoading(true);try{const r=await fetch("/api/auth",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"send-otp",email:em})});const d=await r.json();if(r.ok){setEmail(em);if(d.demo_otp)addToast(`OTP: ${d.demo_otp}`,"warning");else addToast("OTP sent!","success");setPage("otp")}else addToast(d.error,"error")}catch{addToast("Network error","error")};setLoading(false)}
   const handleVerifyOTP=async otp=>{setLoading(true);try{const r=await fetch("/api/auth",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"verify-otp",email,otp})});const d=await r.json();if(r.ok){addToast("Verified! Create password.","success");setPage("create-password")}else addToast(d.error,"error")}catch{addToast("Network error","error")};setLoading(false)}
-  const handleCreatePassword=async pw=>{setLoading(true);try{const r=await fetch("/api/auth",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"create-password",email,password:pw})});const d=await r.json();if(r.ok){addToast("Password created! Login now.","success");setPrefillEmail(email);setPage("login")}else addToast(d.error,"error")}catch{addToast("Network error","error")};setLoading(false)}
-  const handleLogin=async(em,pw)=>{setLoading(true);try{const r=await fetch("/api/auth",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"login",email:em,password:pw})});const d=await r.json();if(r.ok){addToast(`Welcome, ${d.mentor.name}!`,"success");setUser(d.mentor);setPrefillEmail("");setPage(d.mentor.role==="admin"?"admin":"mentor")}else addToast(d.error,"error")}catch{addToast("Network error","error")};setLoading(false)}
+  const handleCreatePassword=async pw=>{setLoading(true);try{const r=await fetch("/api/auth",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"create-password",email,password:pw})});const d=await r.json();if(r.ok){addToast("Password created! Login now.","success");setPrefillEmail(email);setAuthMode("login");setPage("login")}else addToast(d.error,"error")}catch{addToast("Network error","error")};setLoading(false)}
+  const handleLogin=async(em,pw)=>{setLoading(true);try{const r=await fetch("/api/auth",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"login",email:em,password:pw})});const d=await r.json();if(r.ok){const chosenRole=loginRole;const isAdminEmail=ADMIN_EMAILS.includes(em.toLowerCase().trim());if(chosenRole==="admin"&&!isAdminEmail){addToast("This email doesn't have admin access","error");setLoading(false);return}addToast(`Welcome, ${d.mentor.name}!`,"success");setUser({...d.mentor,role:chosenRole});setPrefillEmail("");setPage(chosenRole)}else addToast(d.error,"error")}catch{addToast("Network error","error")};setLoading(false)}
   const handleLogout=()=>{setUser(null);setEmail("");setPrefillEmail("");setLoginRole("mentor");setPage("landing")}
   const goHome=()=>{setEmail("");setPrefillEmail("");setLoginRole("mentor");setPage("landing")}
 
+  const[authMode,setAuthMode]=useState("login") // "login" or "create"
+
   return<><Toasts toasts={toasts}/>
-    {page==="landing"&&<LandingPage onLogin={()=>setPage("login")} onCreateAccount={()=>setPage("role-pick")}/>}
-    {page==="role-pick"&&<RolePickPage onPick={r=>{setLoginRole(r);setPage("create-email")}} onBack={goHome}/>}
-    {page==="login"&&<LoginPage onSubmit={handleLogin} onBack={goHome} loading={loading} prefillEmail={prefillEmail} role={loginRole}/>}
+    {page==="landing"&&<LandingPage onLogin={()=>{setAuthMode("login");setPage("role-pick")}} onCreateAccount={()=>{setAuthMode("create");setPage("role-pick")}}/>}
+    {page==="role-pick"&&<RolePickPage mode={authMode} onPick={r=>{setLoginRole(r);if(authMode==="login")setPage("login");else setPage("create-email")}} onBack={goHome}/>}
+    {page==="login"&&<LoginPage onSubmit={handleLogin} onBack={()=>setPage("role-pick")} loading={loading} prefillEmail={prefillEmail} role={loginRole}/>}
     {page==="create-email"&&<CreateEmailPage onSubmit={handleCreateSendOTP} onBack={()=>setPage("role-pick")} loading={loading} role={loginRole}/>}
     {page==="otp"&&<OTPPage email={email} onVerify={handleVerifyOTP} onBack={()=>setPage("create-email")} loading={loading}/>}
     {page==="create-password"&&<CreatePasswordPage email={email} onSubmit={handleCreatePassword} loading={loading}/>}
