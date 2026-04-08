@@ -17,24 +17,34 @@
   --font-display:'Sora',sans-serif;
   --font-body:'DM Sans',sans-serif;
 }
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth;height:100%}
 body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
-h1,h2,h3,h4,h5,h6{font-family:var(--font-display)}
+h1,h2,h3,h4,h5,h6{font-family:var(--font-display);font-weight:600}
 ::-webkit-scrollbar{width:6px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:#2a2a3a;border-radius:4px}
-::-webkit-scrollbar-thumb:hover{background:#3a3a52}
 input,select,textarea,button{font-family:var(--font-body)}
 select option{background:var(--bg-card);color:var(--text)}
 input::placeholder,textarea::placeholder{color:var(--text-muted)}
 input:focus,select:focus,textarea:focus{border-color:var(--accent)!important;outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
 a{text-decoration:none;color:inherit}
+
 @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes scaleIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
 @keyframes toastIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
 @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes slide{0%{transform:translateX(-25%)}100%{transform:translateX(25%)}}
 .fade-up{animation:fadeUp .5s ease both}
 .fade-in{animation:fadeIn .4s ease both}
 .scale-in{animation:scaleIn .3s ease both}
+
+/* Sliding diagonal backgrounds */
+.landing-bg{
+  animation:slide 3s ease-in-out infinite alternate;
+  background-image:linear-gradient(-60deg,#1a0800 50%,#0a0410 50%);
+  bottom:0;left:-50%;opacity:.5;position:fixed;right:-50%;top:0;z-index:0;
+}
+.landing-bg2{animation-direction:alternate-reverse;animation-duration:4s;background-image:linear-gradient(-60deg,#0d0205 50%,#080812 50%)}
+.landing-bg3{animation-duration:5s;background-image:linear-gradient(-60deg,#100508 50%,#060610 50%)}

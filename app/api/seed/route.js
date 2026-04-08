@@ -46,93 +46,17 @@ const MENTORS = [
   { name: "Test - Harshavardhini", email: "harshavardhini@technicalhub.io" },
 ]
 
-const PARENT_TASKS = [
-  {
-    title: "Design",
-    subTasks: [
-      { title: "Poster & Brochure Design", stages: ["Content Brief","Concept Drafts","Review & Revisions","Final Approval","Print-Ready Export","Printing","Delivery"] },
-      { title: "Visitor Pass Design", stages: ["Template Design","Data Fields Setup","Sample Print","Approval","Bulk Production"] },
-      { title: "Title Cards Design", stages: ["Design Template","Content Listing","Print & Cut","Lamination","Placement"] },
-      { title: "Foam Boards", stages: ["Design Layout","Content Placement","Vendor Selection","Printing","Quality Check","Installation"] },
-      { title: "Invitation Designs", stages: ["Design Concept","Content Draft","Review & Approval","Printing","Envelope Prep","Distribution"] },
-      { title: "Folders", stages: ["Design Selection","Content Compilation","Printing","Assembly","Distribution"] },
-    ]
-  },
-  {
-    title: "Letters",
-    subTasks: [
-      { title: "Internship Letters", stages: ["Template Creation","Data Collection","Generation","Review","Printing","Signature","Distribution"] },
-      { title: "Participation Letters", stages: ["Template Creation","Data Collection","Generation","Review","Printing","Signature","Distribution"] },
-    ]
-  },
-  {
-    title: "Payments",
-    subTasks: [
-      { title: "Visitors Payment Portal", stages: ["Portal Setup","Payment Gateway Integration","Testing","Go Live","Monitoring"] },
-      { title: "Skillup Payment", stages: ["Portal Setup","Payment Gateway Integration","Testing","Go Live","Monitoring"] },
-    ]
-  },
-  {
-    title: "Accommodation",
-    subTasks: [
-      { title: "Boys Hostel", stages: ["Room Allocation Plan","Amenities Setup","Check-in Desk","Signage Placement","Final Walkthrough"] },
-      { title: "Girls Hostel", stages: ["Room Allocation Plan","Amenities Setup","Check-in Desk","Signage Placement","Final Walkthrough"] },
-      { title: "Night Stay Mentors", stages: ["Roster Planning","Room Assignment","Emergency Protocol","Duty Schedule"] },
-    ]
-  },
-  {
-    title: "Technical Setup",
-    subTasks: [
-      { title: "LED Display Setup", stages: ["Content Design","Display Configuration","Testing","Installation"] },
-      { title: "Sound System Setup", stages: ["Equipment Inventory","Venue Assessment","Setup Plan","Sound Check","Event Support"] },
-      { title: "Lighting Arrangement", stages: ["Venue Assessment","Equipment Selection","Installation","Testing","Event Support"] },
-      { title: "Internet Setup", stages: ["Bandwidth Assessment","Router Placement","Configuration","Speed Testing","Monitoring"] },
-      { title: "Live Streaming Setup", stages: ["Equipment Setup","Camera Placement","Sound Check","Platform Configuration","Test Stream","Go Live"] },
-    ]
-  },
-  {
-    title: "Food & Drinks",
-    subTasks: [
-      { title: "Snacks & Beverages", stages: ["Menu Planning","Vendor Selection","Order Placement","Delivery Coordination","Setup & Display","Replenishment"] },
-      { title: "Dinner Coordination", stages: ["Menu Planning","Venue Setup","Catering Coordination","Seating Arrangement","Service Management"] },
-      { title: "Soft Drinks Arrangement", stages: ["Quantity Estimation","Vendor Selection","Order Placement","Storage & Cooling","Distribution"] },
-      { title: "Water Bottles & Umbrellas", stages: ["Quantity Estimation","Procurement","Storage Setup","Distribution Points"] },
-    ]
-  },
-  {
-    title: "Certificates & ID",
-    subTasks: [
-      { title: "Certificates Printing", stages: ["Template Design","Name List Compilation","Data Merge & Proof","Test Print","Bulk Printing","Quality Check","Sorting & Filing"] },
-      { title: "Certificates Segregation & Filing", stages: ["Category Definition","Sorting","Filing","Labeling","Storage"] },
-      { title: "ID Cards Production", stages: ["Template Design","Photo Collection","Data Entry","Printing","Lamination","Distribution"] },
-    ]
-  },
-  {
-    title: "Event Operations",
-    subTasks: [
-      { title: "Event Planning & Execution", stages: ["Timeline Creation","Venue Layout","Vendor Coordination","Rehearsal","Execution","Post-Event Review"] },
-      { title: "Discipline Management", stages: ["Rules Documentation","Team Briefing","Patrol Schedule","Incident Reporting"] },
-      { title: "CC Control Room", stages: ["Equipment Setup","Display Configuration","Communication Test","Monitoring Setup","Staffing"] },
-      { title: "Project Stats & CC Display", stages: ["Data Collection","Dashboard Design","Display Setup","Real-time Updates"] },
-    ]
-  },
-  {
-    title: "Welcome Kit & Merchandise",
-    subTasks: [
-      { title: "Welcome Kit", stages: ["Content Finalization","Vendor Selection","Order Placement","Quality Inspection","Kit Assembly","Labeling & Packing","Distribution Ready"] },
-      { title: "T-Shirts Order (900 units)", stages: ["Design Finalization","Size Collection","Vendor Selection","Order Placement","Quality Check","Distribution"] },
-    ]
-  },
-  {
-    title: "Amenities",
-    subTasks: [
-      { title: "Room Freshener Arrangement", stages: ["Venue Assessment","Product Selection","Placement Plan","Restocking Schedule"] },
-      { title: "Scavenger Hunt Coordination", stages: ["Theme & Clues Design","Route Planning","Prize Arrangement","Volunteer Briefing","Execution"] },
-    ]
-  },
-]
-
-const REGULAR_TASKS = [
+// ALL tasks — flat stages only, no sub-tasks
+const ALL_TASKS = [
+  { title: "Design", stages: ["Poster & Brochure Design","Visitor Pass Design","Title Cards Design","Foam Boards","Invitation Designs","Folders"] },
+  { title: "Letters", stages: ["Skillup Participation Letters","DriveReady Participation Letters","Internship Letters","Project Space Participation Letters","Visitor Pass Letters"] },
+  { title: "Payments", stages: ["Visitors Payment Portal","Skillup Payment"] },
+  { title: "Accommodation", stages: ["Boys Hostel","Girls Hostel","Night Stay Mentors"] },
+  { title: "Technical Setup", stages: ["LED Display Setup","Sound System Setup","Lighting Arrangement","Internet Setup","Live Streaming Setup"] },
+  { title: "Food & Drinks", stages: ["Snacks & Beverages","Dinner Coordination","Soft Drinks Arrangement","Water Bottles & Umbrellas"] },
+  { title: "Certificates & ID", stages: ["Certificates Printing","Certificates Segregation & Filing","ID Cards Production"] },
+  { title: "Event Operations", stages: ["Event Planning & Execution","Discipline Management","CC Control Room","Project Stats & CC Display"] },
+  { title: "Welcome Kit & Merchandise", stages: ["Welcome Kit","T-Shirts Order (900 units)"] },
   { title: "Guests Responsibility", stages: ["Guest List Confirmation","Travel Coordination","Hospitality Briefing","Welcome & Reception","Feedback Collection"] },
   { title: "Visitor Pass Distribution", stages: ["Pass Printing","Sorting by Category","Distribution Desk Setup","Distribution","Tracking"] },
   { title: "Project Street Setup", stages: ["Layout Planning","Stall Allocation","Infrastructure Setup","Signage","Final Walkthrough"] },
@@ -163,54 +87,23 @@ export async function POST() {
 
     const existingCount = await db.collection('task_items').countDocuments()
     if (existingCount === 0) {
-      let order = 1
-      const allTasks = []
-
-      for (const pt of PARENT_TASKS) {
-        const subTasks = pt.subTasks.map((st, i) => ({
-          title: st.title,
-          stages: buildStages(st.stages),
-          responsible: null,
-          teamMembers: [],
-          order: i + 1,
-        }))
-        allTasks.push({
-          title: pt.title,
-          hasSubTasks: true,
-          subTasks,
-          stages: [],
-          responsible: null,
-          teamMembers: [],
-          order: order++,
-          createdAt: new Date(),
-          updatedAt: new Date()
-        })
-      }
-
-      for (const rt of REGULAR_TASKS) {
-        allTasks.push({
-          title: rt.title,
-          hasSubTasks: false,
-          subTasks: [],
-          stages: buildStages(rt.stages),
-          responsible: null,
-          teamMembers: [],
-          order: order++,
-          createdAt: new Date(),
-          updatedAt: new Date()
-        })
-      }
-
+      const allTasks = ALL_TASKS.map((t, i) => ({
+        title: t.title,
+        hasSubTasks: false,
+        subTasks: [],
+        stages: buildStages(t.stages),
+        responsible: null,
+        teamMembers: [],
+        order: i + 1,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }))
       await db.collection('task_items').insertMany(allTasks)
     }
 
     const mentorCount = await db.collection('task_mentors').countDocuments()
     const taskCount = await db.collection('task_items').countDocuments()
-
-    return NextResponse.json({
-      message: `Seeded ${mentorCount} mentors and ${taskCount} tasks!`,
-      mentors: mentorCount, tasks: taskCount
-    })
+    return NextResponse.json({ message: `Seeded ${mentorCount} mentors and ${taskCount} tasks!`, mentors: mentorCount, tasks: taskCount })
   } catch (err) {
     console.error('Seed error:', err)
     return NextResponse.json({ error: 'Seed failed: ' + err.message }, { status: 500 })
