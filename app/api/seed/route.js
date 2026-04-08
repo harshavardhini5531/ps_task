@@ -46,11 +46,9 @@ const MENTORS = [
   { name: "Test - Harshavardhini", email: "harshavardhini@technicalhub.io" },
 ]
 
-// Tasks with sub-tasks (parent tasks)
 const PARENT_TASKS = [
   {
     title: "Design",
-    hasSubTasks: true,
     subTasks: [
       { title: "Poster & Brochure Design", stages: ["Content Brief","Concept Drafts","Review & Revisions","Final Approval","Print-Ready Export","Printing","Delivery"] },
       { title: "Visitor Pass Design", stages: ["Template Design","Data Fields Setup","Sample Print","Approval","Bulk Production"] },
@@ -62,7 +60,6 @@ const PARENT_TASKS = [
   },
   {
     title: "Letters",
-    hasSubTasks: true,
     subTasks: [
       { title: "Internship Letters", stages: ["Template Creation","Data Collection","Generation","Review","Printing","Signature","Distribution"] },
       { title: "Participation Letters", stages: ["Template Creation","Data Collection","Generation","Review","Printing","Signature","Distribution"] },
@@ -70,51 +67,84 @@ const PARENT_TASKS = [
   },
   {
     title: "Payments",
-    hasSubTasks: true,
     subTasks: [
       { title: "Visitors Payment Portal", stages: ["Portal Setup","Payment Gateway Integration","Testing","Go Live","Monitoring"] },
       { title: "Skillup Payment", stages: ["Portal Setup","Payment Gateway Integration","Testing","Go Live","Monitoring"] },
     ]
   },
+  {
+    title: "Accommodation",
+    subTasks: [
+      { title: "Boys Hostel", stages: ["Room Allocation Plan","Amenities Setup","Check-in Desk","Signage Placement","Final Walkthrough"] },
+      { title: "Girls Hostel", stages: ["Room Allocation Plan","Amenities Setup","Check-in Desk","Signage Placement","Final Walkthrough"] },
+      { title: "Night Stay Mentors", stages: ["Roster Planning","Room Assignment","Emergency Protocol","Duty Schedule"] },
+    ]
+  },
+  {
+    title: "Technical Setup",
+    subTasks: [
+      { title: "LED Display Setup", stages: ["Content Design","Display Configuration","Testing","Installation"] },
+      { title: "Sound System Setup", stages: ["Equipment Inventory","Venue Assessment","Setup Plan","Sound Check","Event Support"] },
+      { title: "Lighting Arrangement", stages: ["Venue Assessment","Equipment Selection","Installation","Testing","Event Support"] },
+      { title: "Internet Setup", stages: ["Bandwidth Assessment","Router Placement","Configuration","Speed Testing","Monitoring"] },
+      { title: "Live Streaming Setup", stages: ["Equipment Setup","Camera Placement","Sound Check","Platform Configuration","Test Stream","Go Live"] },
+    ]
+  },
+  {
+    title: "Food & Drinks",
+    subTasks: [
+      { title: "Snacks & Beverages", stages: ["Menu Planning","Vendor Selection","Order Placement","Delivery Coordination","Setup & Display","Replenishment"] },
+      { title: "Dinner Coordination", stages: ["Menu Planning","Venue Setup","Catering Coordination","Seating Arrangement","Service Management"] },
+      { title: "Soft Drinks Arrangement", stages: ["Quantity Estimation","Vendor Selection","Order Placement","Storage & Cooling","Distribution"] },
+      { title: "Water Bottles & Umbrellas", stages: ["Quantity Estimation","Procurement","Storage Setup","Distribution Points"] },
+    ]
+  },
+  {
+    title: "Certificates & ID",
+    subTasks: [
+      { title: "Certificates Printing", stages: ["Template Design","Name List Compilation","Data Merge & Proof","Test Print","Bulk Printing","Quality Check","Sorting & Filing"] },
+      { title: "Certificates Segregation & Filing", stages: ["Category Definition","Sorting","Filing","Labeling","Storage"] },
+      { title: "ID Cards Production", stages: ["Template Design","Photo Collection","Data Entry","Printing","Lamination","Distribution"] },
+    ]
+  },
+  {
+    title: "Event Operations",
+    subTasks: [
+      { title: "Event Planning & Execution", stages: ["Timeline Creation","Venue Layout","Vendor Coordination","Rehearsal","Execution","Post-Event Review"] },
+      { title: "Discipline Management", stages: ["Rules Documentation","Team Briefing","Patrol Schedule","Incident Reporting"] },
+      { title: "CC Control Room", stages: ["Equipment Setup","Display Configuration","Communication Test","Monitoring Setup","Staffing"] },
+      { title: "Project Stats & CC Display", stages: ["Data Collection","Dashboard Design","Display Setup","Real-time Updates"] },
+    ]
+  },
+  {
+    title: "Welcome Kit & Merchandise",
+    subTasks: [
+      { title: "Welcome Kit", stages: ["Content Finalization","Vendor Selection","Order Placement","Quality Inspection","Kit Assembly","Labeling & Packing","Distribution Ready"] },
+      { title: "T-Shirts Order (900 units)", stages: ["Design Finalization","Size Collection","Vendor Selection","Order Placement","Quality Check","Distribution"] },
+    ]
+  },
+  {
+    title: "Amenities",
+    subTasks: [
+      { title: "Room Freshener Arrangement", stages: ["Venue Assessment","Product Selection","Placement Plan","Restocking Schedule"] },
+      { title: "Scavenger Hunt Coordination", stages: ["Theme & Clues Design","Route Planning","Prize Arrangement","Volunteer Briefing","Execution"] },
+    ]
+  },
 ]
 
-// Regular tasks (stages only, no sub-tasks)
 const REGULAR_TASKS = [
-  { title: "Welcome Kit", stages: ["Content Finalization","Vendor Selection","Order Placement","Quality Inspection","Kit Assembly","Labeling & Packing","Distribution Ready"] },
-  { title: "Boys Hostel", stages: ["Room Allocation Plan","Amenities Setup","Check-in Desk","Signage Placement","Final Walkthrough"] },
-  { title: "Girls Hostel", stages: ["Room Allocation Plan","Amenities Setup","Check-in Desk","Signage Placement","Final Walkthrough"] },
   { title: "Guests Responsibility", stages: ["Guest List Confirmation","Travel Coordination","Hospitality Briefing","Welcome & Reception","Feedback Collection"] },
-  { title: "Certificates Printing", stages: ["Template Design","Name List Compilation","Data Merge & Proof","Test Print","Bulk Printing","Quality Check","Sorting & Filing"] },
   { title: "Visitor Pass Distribution", stages: ["Pass Printing","Sorting by Category","Distribution Desk Setup","Distribution","Tracking"] },
   { title: "Project Street Setup", stages: ["Layout Planning","Stall Allocation","Infrastructure Setup","Signage","Final Walkthrough"] },
-  { title: "Certificates Segregation & Filing", stages: ["Category Definition","Sorting","Filing","Labeling","Storage"] },
-  { title: "Snacks & Beverages", stages: ["Menu Planning","Vendor Selection","Order Placement","Delivery Coordination","Setup & Display","Replenishment"] },
   { title: "Gifts Arrangement", stages: ["Gift Selection","Vendor Negotiation","Order Placement","Quality Check","Packaging","Distribution Plan"] },
-  { title: "Live Streaming Setup", stages: ["Equipment Setup","Camera Placement","Sound Check","Platform Configuration","Test Stream","Go Live"] },
   { title: "Project Reviews", stages: ["Schedule Planning","Panel Assignment","Rubric Preparation","Room Setup","Review Sessions","Score Compilation"] },
-  { title: "CC Control Room", stages: ["Equipment Setup","Display Configuration","Communication Test","Monitoring Setup","Staffing"] },
-  { title: "Attendance Management", stages: ["System Setup","QR/ID Configuration","Testing","Registration Desk","Daily Tracking"] },
-  { title: "Discipline Management", stages: ["Rules Documentation","Team Briefing","Patrol Schedule","Incident Reporting"] },
-  { title: "Night Stay Mentors", stages: ["Roster Planning","Room Assignment","Emergency Protocol","Duty Schedule"] },
-  { title: "ID Cards Production", stages: ["Template Design","Photo Collection","Data Entry","Printing","Lamination","Distribution"] },
-  { title: "T-Shirts Order (900 units)", stages: ["Design Finalization","Size Collection","Vendor Selection","Order Placement","Quality Check","Distribution"] },
   { title: "Social Media Management", stages: ["Content Calendar","Post Creation","Scheduling","Live Coverage","Post-Event Highlights"] },
-  { title: "Project Stats & CC Display", stages: ["Data Collection","Dashboard Design","Display Setup","Real-time Updates"] },
-  { title: "LED Display Setup", stages: ["Content Design","Display Configuration","Testing","Installation"] },
-  { title: "Sound System Setup", stages: ["Equipment Inventory","Venue Assessment","Setup Plan","Sound Check","Event Support"] },
-  { title: "Dinner Coordination", stages: ["Menu Planning","Venue Setup","Catering Coordination","Seating Arrangement","Service Management"] },
-  { title: "Lighting Arrangement", stages: ["Venue Assessment","Equipment Selection","Installation","Testing","Event Support"] },
-  { title: "Event Planning & Execution", stages: ["Timeline Creation","Venue Layout","Vendor Coordination","Rehearsal","Execution","Post-Event Review"] },
-  { title: "Water Bottles & Umbrellas", stages: ["Quantity Estimation","Procurement","Storage Setup","Distribution Points"] },
-  { title: "Scavenger Hunt Coordination", stages: ["Theme & Clues Design","Route Planning","Prize Arrangement","Volunteer Briefing","Execution"] },
-  { title: "Room Freshener Arrangement", stages: ["Venue Assessment","Product Selection","Placement Plan","Restocking Schedule"] },
-  { title: "Internet Setup", stages: ["Bandwidth Assessment","Router Placement","Configuration","Speed Testing","Monitoring"] },
-  { title: "Soft Drinks Arrangement", stages: ["Quantity Estimation","Vendor Selection","Order Placement","Storage & Cooling","Distribution"] },
+  { title: "Attendance Management", stages: ["System Setup","QR/ID Configuration","Testing","Registration Desk","Daily Tracking","Report Generation"] },
   { title: "Mentor Project Expo", stages: ["Schedule Planning","Booth Assignment","Mentor Briefing","Setup","Expo Execution","Feedback"] },
 ]
 
-function buildStages(stageNames) {
-  return stageNames.map((s, i) => ({
+function buildStages(names) {
+  return names.map((s, i) => ({
     title: s, status: "todo", comment: "", completedAt: null, assignedTo: null, order: i, createdAt: new Date().toISOString()
   }))
 }
@@ -123,7 +153,6 @@ export async function POST() {
   try {
     const db = await getDb()
 
-    // Seed mentors
     for (const m of MENTORS) {
       await db.collection('task_mentors').updateOne(
         { email: m.email },
@@ -132,13 +161,11 @@ export async function POST() {
       )
     }
 
-    // Clear existing tasks and re-seed
     const existingCount = await db.collection('task_items').countDocuments()
     if (existingCount === 0) {
       let order = 1
       const allTasks = []
 
-      // Parent tasks with sub-tasks
       for (const pt of PARENT_TASKS) {
         const subTasks = pt.subTasks.map((st, i) => ({
           title: st.title,
@@ -160,7 +187,6 @@ export async function POST() {
         })
       }
 
-      // Regular tasks
       for (const rt of REGULAR_TASKS) {
         allTasks.push({
           title: rt.title,
@@ -182,7 +208,7 @@ export async function POST() {
     const taskCount = await db.collection('task_items').countDocuments()
 
     return NextResponse.json({
-      message: `Seeded ${mentorCount} mentors and ${taskCount} tasks successfully!`,
+      message: `Seeded ${mentorCount} mentors and ${taskCount} tasks!`,
       mentors: mentorCount, tasks: taskCount
     })
   } catch (err) {
