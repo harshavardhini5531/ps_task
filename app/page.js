@@ -5,7 +5,7 @@ import { LogIn, LogOut, Search, Plus, Trash2, Edit3, Check, X, Bell, Users, Clip
 const ADMIN_EMAILS=["harshavardhini.j@adityauniversity.in","babji@aec.edu.in","harshavardhini@technicalhub.io"]
 const EXCLUDE_FROM_TEAM=["babji@aec.edu.in"]
 const CARD_COLORS=[{bg:"#fff5f3",border:"#ffd4cc",accent:"#ff2d00"},{bg:"#f0f4ff",border:"#c8d8ff",accent:"#3b82f6"},{bg:"#fff8ee",border:"#ffe0a8",accent:"#d97706"},{bg:"#eefbf4",border:"#b8e8d0",accent:"#16a34a"},{bg:"#f5f0ff",border:"#d4c4f8",accent:"#8b5cf6"},{bg:"#fef0f7",border:"#f5c0da",accent:"#db2777"},{bg:"#eefbff",border:"#b0e4f5",accent:"#0891b2"},{bg:"#fff4ee",border:"#ffd0b0",accent:"#ea580c"}]
-const COL_STYLES={todo:{label:"Total Stages",color:"#3b82f6",bg:"#f5f8ff",border:"#d8e4ff"},progress:{label:"In Progress",color:"#d97706",bg:"#fffbf0",border:"#ffe8b8"},completed:{label:"Completed",color:"#16a34a",bg:"#f0faf4",border:"#c0e8d0"}}
+const COL_STYLES={todo:{label:"Total Sub-Tasks",color:"#3b82f6",bg:"#f5f8ff",border:"#d8e4ff"},progress:{label:"In Progress",color:"#d97706",bg:"#fffbf0",border:"#ffe8b8"},completed:{label:"Completed",color:"#16a34a",bg:"#f0faf4",border:"#c0e8d0"}}
 
 const AV_C=["#ff2d00","#3b82f6","#d97706","#16a34a","#8b5cf6","#db2777","#0891b2","#ea580c","#6366f1","#0d9488","#e11d48","#0284c7","#65a30d","#e04545","#7c3aed"]
 function getAC(n){let h=0;for(let i=0;i<(n||"").length;i++)h=n.charCodeAt(i)+((h<<5)-h);return AV_C[Math.abs(h)%AV_C.length]}
@@ -169,12 +169,12 @@ function KanbanBoard({stages,onSaveStages,canManage,isTM,currentUser,mentors,tea
   const onDragOver=e=>e.preventDefault()
   const onDrop=(e,targetCol)=>{e.preventDefault();if(!dragItem)return;const{idx,col:src}=dragItem;if(src===targetCol){setDragItem(null);return}
     const stage=getCol(src)[idx];if(!stage){setDragItem(null);return}
-    if(!canManage&&stage.assignedTo!==currentUser?.email){addToast("You can only move your stages","warning");setDragItem(null);return}
+    if(!canManage&&stage.assignedTo!==currentUser?.email){addToast("You can only move your sub-tasks","warning");setDragItem(null);return}
     onSaveStages(stages.map(s=>(s.title===stage.title&&norm(s)===src&&s.assignedTo===stage.assignedTo)?{...s,status:targetCol,completedAt:targetCol==="completed"?new Date().toISOString():targetCol==="todo"?null:s.completedAt}:s))
-    onNotifyActivity&&onNotifyActivity(`Stage "${stage.title}" moved to ${targetCol==="progress"?"In Progress":"Completed"}`,currentUser?.name)
+    onNotifyActivity&&onNotifyActivity(`Sub-task "${stage.title}" moved to ${targetCol==="progress"?"In Progress":"Completed"}`,currentUser?.name)
     setDragItem(null)}
   const addNew=()=>{if(!newStage.trim()||!canManage)return;onSaveStages([...stages,{title:newStage.trim(),status:"todo",comment:"",completedAt:null,assignedTo:null,createdAt:new Date().toISOString()}])
-    onNotifyActivity&&onNotifyActivity(`New stage added: "${newStage.trim()}"`,currentUser?.name);setNewStage("")}
+    onNotifyActivity&&onNotifyActivity(`New sub-task added: "${newStage.trim()}"`,currentUser?.name);setNewStage("")}
   const del=(idx,col)=>{if(!canManage)return;const s=getCol(col)[idx];onSaveStages(stages.filter(x=>!(x.title===s.title&&norm(x)===col&&x.assignedTo===s.assignedTo)))}
   const startEd=(idx,col)=>{setEditIdx(idx);setEditCol(col);setEditTitle(getCol(col)[idx].title)}
   const saveEd=()=>{if(!editTitle.trim())return;const s=getCol(editCol)[editIdx];onSaveStages(stages.map(x=>(x.title===s.title&&norm(x)===editCol&&x.assignedTo===s.assignedTo)?{...x,title:editTitle.trim()}:x));setEditIdx(null);setEditCol(null)}
@@ -191,12 +191,12 @@ function KanbanBoard({stages,onSaveStages,canManage,isTM,currentUser,mentors,tea
             <div style={{display:"flex",gap:5}}><button onClick={saveEd} style={{background:"#f0faf4",border:"1px solid #c0e8d0",borderRadius:7,padding:"5px 10px",color:"#16a34a",fontSize:11.5,fontWeight:600,cursor:"pointer"}}><Check size={11}/> Save</button>
               <button onClick={()=>{setEditIdx(null);setEditCol(null)}} style={{background:"#fff",border:"1px solid #e5e5ec",borderRadius:7,padding:"5px 10px",color:"#6b6b80",fontSize:11.5,fontWeight:600,cursor:"pointer"}}>Cancel</button></div></div>
           return<StageCard key={idx} stage={stage} idx={idx} colKey={colKey} onDragStart={onDragStart} canDrag={canDrag} onEdit={startEd} onDelete={del} canEdit={canManage} mentors={mentors} teamMembers={teamMembers} onAssign={assignS}/>})}
-        {items.length===0&&<div style={{textAlign:"center",padding:"18px 10px",color:"#c0c0cc",fontSize:11.5}}>Drag stages here</div>}</div></div>}
+        {items.length===0&&<div style={{textAlign:"center",padding:"18px 10px",color:"#c0c0cc",fontSize:11.5}}>Drag sub-tasks here</div>}</div></div>}
   return<div>
     <div style={{display:"flex",gap:8,marginBottom:14,alignItems:"center",flexWrap:"wrap"}}>
-      {canManage&&<><input value={newStage} onChange={e=>setNewStage(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addNew()} placeholder="Add new stage..." style={{flex:1,minWidth:160,padding:"9px 13px",background:"#fff",border:"1px solid #e5e5ec",borderRadius:9,color:"#1a1a2e",fontSize:12.5}}/>
+      {canManage&&<><input value={newStage} onChange={e=>setNewStage(e.target.value)} onKeyDown={e=>e.key==="Enter"&&addNew()} placeholder="Add new sub-task..." style={{flex:1,minWidth:160,padding:"9px 13px",background:"#fff",border:"1px solid #e5e5ec",borderRadius:9,color:"#1a1a2e",fontSize:12.5}}/>
         <Btn onClick={addNew} style={{padding:"9px 16px",fontSize:12.5}}><Plus size={13}/> Add</Btn></>}
-      {isTM&&!canManage&&<><input value={newStage} onChange={e=>setNewStage(e.target.value)} placeholder="Request a stage..." style={{flex:1,minWidth:160,padding:"9px 13px",background:"#fff",border:"1px solid #e5e5ec",borderRadius:9,color:"#1a1a2e",fontSize:12.5}}/>
+      {isTM&&!canManage&&<><input value={newStage} onChange={e=>setNewStage(e.target.value)} placeholder="Request a sub-task..." style={{flex:1,minWidth:160,padding:"9px 13px",background:"#fff",border:"1px solid #e5e5ec",borderRadius:9,color:"#1a1a2e",fontSize:12.5}}/>
         <Btn variant="amber" onClick={()=>{if(newStage.trim()){onRequestStage(newStage.trim());setNewStage("")}}} style={{padding:"9px 16px",fontSize:12.5}}><MessageSquare size={13}/> Request</Btn></>}</div>
     <div className="kanban-cols" style={{display:"flex",gap:12,overflowX:"auto"}}>{renderCol("todo")}{renderCol("progress")}{renderCol("completed")}</div></div>}
 
@@ -230,17 +230,17 @@ function TaskDetail({task,mentors,onClose,onUpdate,isAdmin,currentUser,addToast,
     addToast(`Notified ${newPeople.length} new member(s)`,"success");setPendingNotify(false)}
 
   const onRequestStage=title=>{const req={title,requestedBy:currentUser?.name||currentUser?.email,requestedEmail:currentUser?.email,requestedAt:new Date().toISOString()}
-    const updated=[...stageRequests,req];setStageRequests(updated);saveTask({stageRequests:updated});addToast("Stage requested!","info")
+    const updated=[...stageRequests,req];setStageRequests(updated);saveTask({stageRequests:updated});addToast("Sub-task requested!","info")
     // Notify responsible
-    if(task.responsible)onSendNotification({type:"stage-request",taskTitle:task.title,message:`${currentUser?.name} requested stage "${title}" for "${task.title}"`,targetEmail:task.responsible.email,fromName:currentUser?.name,fromEmail:currentUser?.email})}
+    if(task.responsible)onSendNotification({type:"stage-request",taskTitle:task.title,message:`${currentUser?.name} requested sub-task "${title}" for "${task.title}"`,targetEmail:task.responsible.email,fromName:currentUser?.name,fromEmail:currentUser?.email})}
 
   const startApprove=idx=>{setApproveIdx(idx);setApproveName(stageRequests[idx].title)}
   const confirmApprove=()=>{if(!approveName.trim())return;const newStages=[...(task.stages||[]),{title:approveName.trim(),status:"todo",comment:"",completedAt:null,assignedTo:null,createdAt:new Date().toISOString()}]
     const req=stageRequests[approveIdx];const newReqs=stageRequests.filter((_,i)=>i!==approveIdx);setStageRequests(newReqs);saveTask({stages:newStages,stageRequests:newReqs});setApproveIdx(-1);addToast(`Approved: ${approveName}`,"success")
     // Notify requester
-    if(req.requestedEmail)onSendNotification({type:"stage-approved",taskTitle:task.title,message:`Your stage request "${approveName}" was approved for "${task.title}"`,targetEmail:req.requestedEmail,fromName:currentUser?.name,fromEmail:currentUser?.email})}
+    if(req.requestedEmail)onSendNotification({type:"stage-approved",taskTitle:task.title,message:`Your sub-task request "${approveName}" was approved for "${task.title}"`,targetEmail:req.requestedEmail,fromName:currentUser?.name,fromEmail:currentUser?.email})}
   const rejectRequest=idx=>{const req=stageRequests[idx];const newReqs=stageRequests.filter((_,i)=>i!==idx);setStageRequests(newReqs);saveTask({stageRequests:newReqs});addToast("Rejected","warning")
-    if(req.requestedEmail)onSendNotification({type:"stage-request",taskTitle:task.title,message:`Your stage request "${req.title}" was rejected for "${task.title}"`,targetEmail:req.requestedEmail,fromName:currentUser?.name,fromEmail:currentUser?.email})}
+    if(req.requestedEmail)onSendNotification({type:"stage-request",taskTitle:task.title,message:`Your sub-task request "${req.title}" was rejected for "${task.title}"`,targetEmail:req.requestedEmail,fromName:currentUser?.name,fromEmail:currentUser?.email})}
 
   const onNotifyActivity=(message,fromName)=>{
     // Notify responsible about stage activity
@@ -260,7 +260,7 @@ function TaskDetail({task,mentors,onClose,onUpdate,isAdmin,currentUser,addToast,
           <div><h2 style={{fontFamily:"var(--font-display)",fontSize:18,fontWeight:600,color:"#1a1a2e"}}>{task.title}</h2>
             <div style={{display:"flex",alignItems:"center",gap:10,marginTop:3}}>
               {task.responsible&&<div style={{display:"flex",alignItems:"center",gap:4}}><Avatar name={task.responsible.name} size={16}/><span style={{fontSize:11.5,color:"#6b6b80"}}>{task.responsible.name}</span></div>}
-              <span style={{fontSize:10.5,color:"#c0c0cc"}}>{stages.length} stages</span></div></div></div>
+              <span style={{fontSize:10.5,color:"#c0c0cc"}}>{stages.length} sub-tasks</span></div></div></div>
         <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
           <div style={{minWidth:120}}><ProgressBar done={done} total={stages.length}/></div>
           {canManage&&(task.responsible||(task.teamMembers||[]).length>0)&&<Btn variant="notify" onClick={notifyNew} disabled={pendingNotify}><BellRing size={14}/> {pendingNotify?"Sending...":"Notify New"}</Btn>}</div></div>
@@ -272,9 +272,9 @@ function TaskDetail({task,mentors,onClose,onUpdate,isAdmin,currentUser,addToast,
           {(task.teamMembers||[]).map(m=><div key={m.email} style={{display:"flex",alignItems:"center",gap:4,padding:"4px 9px",background:"#f8f8fa",border:"1px solid #e5e5ec",borderRadius:7,fontSize:11.5,color:"#6b6b80"}}>
             <Avatar name={m.name} size={16}/>{m.name.split(" ")[0]}<button onClick={()=>rmTM(m.email)} style={{background:"none",border:"none",cursor:"pointer",color:"#9898a8",display:"flex",padding:0}}><X size={11}/></button></div>)}</div>}</div>}
 
-      {/* Stage Requests */}
+      {/* Sub-Task Requests */}
       {canManage&&stageRequests.length>0&&<div style={{padding:"12px 26px",borderBottom:"1px solid #e5e5ec",background:"#fffbf0"}}>
-        <div style={{fontSize:12,fontWeight:600,color:"#d97706",marginBottom:8,display:"flex",alignItems:"center",gap:5}}><MessageSquare size={13}/> Stage Requests ({stageRequests.length})</div>
+        <div style={{fontSize:12,fontWeight:600,color:"#d97706",marginBottom:8,display:"flex",alignItems:"center",gap:5}}><MessageSquare size={13}/> Sub-Task Requests ({stageRequests.length})</div>
         {stageRequests.map((req,i)=><div key={i} style={{padding:"10px 14px",background:"#fff",border:"1px solid #ffe0a8",borderRadius:8,marginBottom:6}}>
           {approveIdx===i?<div><div style={{fontSize:12,color:"#6b6b80",marginBottom:6}}>Requested: <strong>{req.title}</strong> by {req.requestedBy}</div>
             <div style={{display:"flex",gap:6,alignItems:"center"}}><input value={approveName} onChange={e=>setApproveName(e.target.value)} onKeyDown={e=>e.key==="Enter"&&confirmApprove()} placeholder="Stage name..." style={{flex:1,padding:"7px 10px",background:"#f8f8fa",border:"1px solid #e5e5ec",borderRadius:7,color:"#1a1a2e",fontSize:12.5}} autoFocus/>

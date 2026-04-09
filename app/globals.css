@@ -25,9 +25,9 @@ a{text-decoration:none;color:inherit}
 .fade-up{animation:fadeUp .5s ease both}
 .scale-in{animation:scaleIn .3s ease both}
 
-.landing-bg{animation:slide 3s ease-in-out infinite alternate;background-image:linear-gradient(-60deg,#ffece8 50%,#f0e8ff 50%);bottom:0;left:-50%;opacity:.6;position:fixed;right:-50%;top:0;z-index:0}
-.landing-bg2{animation-direction:alternate-reverse;animation-duration:4s;background-image:linear-gradient(-60deg,#f5e0ff 50%,#e0ecff 50%)}
-.landing-bg3{animation-duration:5s;background-image:linear-gradient(-60deg,#e8f0ff 50%,#ffe8ec 50%)}
+.landing-bg{animation:slide 3s ease-in-out infinite alternate;background-image:linear-gradient(-60deg,#ffe0d4 50%,#ffd6c7 50%);bottom:0;left:-50%;opacity:.5;position:fixed;right:-50%;top:0;z-index:0}
+.landing-bg2{animation-direction:alternate-reverse;animation-duration:4s;background-image:linear-gradient(-60deg,#e8d4ff 50%,#dcc4f8 50%);opacity:.45}
+.landing-bg3{animation-duration:5s;background-image:linear-gradient(-60deg,#c8dcff 50%,#d0e4ff 50%);opacity:.4}
 
 /* Mobile responsive */
 @media(max-width:768px){
