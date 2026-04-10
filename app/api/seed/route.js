@@ -5,7 +5,7 @@ const MENTORS = [
   { name: "Neelam V.S. Murthy (Babji)", email: "babji@aec.edu.in" },
   { name: "MD Shaifu Zama", email: "shaify@adityauniversity.in" },
   { name: "Kedharasetti Prasanth", email: "kprasanth@aec.edu.in" },
-  { name: "Lutukurthi Sathish", email: "sathishl@adityauniversity.in" },
+  { name: "Lutukurthi Sathish", email: "satishl@adityauniversity.in" },
   { name: "Maranala Ashok", email: "ashokm@adityauniversity.in" },
   { name: "Bhallamudi Pavan", email: "pavanb@adityauniversity.in" },
   { name: "Pamarthi V.B. Bobby", email: "bobypamarthi@adityauniversity.in" },
