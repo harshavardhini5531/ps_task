@@ -26,7 +26,7 @@ const MENTORS = [
   { name: "Vegi Divya Jaswanthi", email: "divyajaswanthiv@aec.edu.in" },
   { name: "Kaki Nanda Kumar", email: "nandakumark@adityauniversity.in" },
   { name: "Sangineedi Saikala", email: "saikalas@adityauniversoty.in" },
-  { name: "Setti Durga Prasad", email: "durgaprasad.setti@aec.edu.in" },
+  { name: "Setti Durga Prasad", email: "durgaprasad.setti@adityauniversity.in" },
   { name: "Penke S.R.K.V. Prasad", email: "psrkvprasad@adityauniversity.in" },
   { name: "Munjuluri Madhu Kumar", email: "madhukumar.m@adityauniversity.in" },
   { name: "Ponuku Anil", email: "anilp@adityauniversity.in" },
