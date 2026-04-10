@@ -36,19 +36,19 @@ function SearchDropdown({label,options,value,onChange,placeholder}){
   const filtered=options.filter(o=>(o.label||o.name||"").toLowerCase().includes(search.toLowerCase())||(o.email||"").toLowerCase().includes(search.toLowerCase()))
   const selected=options.find(o=>o.value===value||o.email===value)
   useEffect(()=>{const h=e=>{if(ref.current&&!ref.current.contains(e.target))setOpen(false)};document.addEventListener("mousedown",h);return()=>document.removeEventListener("mousedown",h)},[])
-  return<div ref={ref} style={{position:"relative"}}>
+  return<div ref={ref} style={{position:"relative",minWidth:200}}>
     {label&&<label style={{display:"block",fontSize:11,fontWeight:600,color:"#6b6b80",marginBottom:4,textTransform:"uppercase",letterSpacing:1.2}}>{label}</label>}
     <button onClick={()=>setOpen(!open)} style={{width:"100%",padding:"10px 13px",background:"#fff",border:"1px solid #e5e5ec",borderRadius:10,color:selected?"#1a1a2e":"#9898a8",fontSize:13,fontFamily:"var(--font-body)",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"space-between",gap:8,textAlign:"left"}}>
       <div style={{display:"flex",alignItems:"center",gap:7,flex:1,minWidth:0,overflow:"hidden"}}>{selected&&<Avatar name={selected.label||selected.name} size={20}/>}<span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{selected?(selected.label||selected.name):placeholder||"Select..."}</span></div>
       <ChevronDown size={13} style={{flexShrink:0,transition:"transform .2s",transform:open?"rotate(180deg)":"none",opacity:.4}}/></button>
-    {open&&<div style={{position:"absolute",top:"100%",left:0,right:0,marginTop:4,background:"#fff",border:"1px solid #e5e5ec",borderRadius:10,boxShadow:"0 12px 40px rgba(0,0,0,.1)",zIndex:100,maxHeight:220,display:"flex",flexDirection:"column",overflow:"hidden"}}>
-      <div style={{padding:"7px 8px",borderBottom:"1px solid #f0f0f4"}}><div style={{position:"relative"}}><Search size={13} style={{position:"absolute",left:9,top:"50%",transform:"translateY(-50%)",color:"#9898a8"}}/>
-        <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search..." autoFocus style={{width:"100%",padding:"7px 9px 7px 30px",background:"#f8f8fa",border:"1px solid #e5e5ec",borderRadius:7,color:"#1a1a2e",fontSize:12}}/></div></div>
-      <div style={{overflowY:"auto",flex:1}}>{filtered.length===0&&<div style={{padding:"10px 12px",color:"#9898a8",fontSize:12,textAlign:"center"}}>No results</div>}
+    {open&&<div style={{position:"absolute",top:"100%",left:0,minWidth:260,marginTop:4,background:"#fff",border:"1px solid #e5e5ec",borderRadius:10,boxShadow:"0 12px 40px rgba(0,0,0,.1)",zIndex:100,maxHeight:240,display:"flex",flexDirection:"column",overflow:"hidden"}}>
+      <div style={{padding:"8px 10px",borderBottom:"1px solid #f0f0f4"}}><div style={{position:"relative"}}><Search size={13} style={{position:"absolute",left:10,top:"50%",transform:"translateY(-50%)",color:"#9898a8"}}/>
+        <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search..." autoFocus style={{width:"100%",padding:"8px 10px 8px 32px",background:"#f8f8fa",border:"1px solid #e5e5ec",borderRadius:8,color:"#1a1a2e",fontSize:12.5}}/></div></div>
+      <div style={{overflowY:"auto",flex:1}}>{filtered.length===0&&<div style={{padding:"12px 14px",color:"#9898a8",fontSize:12,textAlign:"center"}}>No results</div>}
         {filtered.map((o,i)=><button key={i} onClick={()=>{onChange(o.value||o.email);setOpen(false);setSearch("")}}
-          style={{width:"100%",padding:"9px 12px",background:"transparent",border:"none",borderBottom:"1px solid #f5f5f8",color:"#1a1a2e",fontSize:12.5,fontFamily:"var(--font-body)",cursor:"pointer",display:"flex",alignItems:"center",gap:9,textAlign:"left",transition:"background .15s"}}
+          style={{width:"100%",padding:"10px 14px",background:"transparent",border:"none",borderBottom:"1px solid #f5f5f8",color:"#1a1a2e",fontSize:13,fontFamily:"var(--font-body)",cursor:"pointer",display:"flex",alignItems:"center",gap:10,textAlign:"left",transition:"background .15s"}}
           onMouseEnter={e=>e.currentTarget.style.background="#fff5f3"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
-          <Avatar name={o.label||o.name} size={22}/><div><div style={{fontWeight:600,fontSize:12.5}}>{o.label||o.name}</div>{o.email&&<div style={{fontSize:10.5,color:"#9898a8",marginTop:1}}>{o.email}</div>}</div></button>)}</div></div>}</div>}
+          <Avatar name={o.label||o.name} size={24}/><span style={{fontWeight:500}}>{o.label||o.name}</span></button>)}</div></div>}</div>}
 
 /* ═══ NOTIFICATIONS PANEL ═══ */
 function NotificationsPanel({notifications,onClose,onMarkRead}){
@@ -141,7 +141,9 @@ function TaskCard({task,index,onClick}){const c=CARD_COLORS[index%CARD_COLORS.le
       {task.responsible?<><Avatar name={task.responsible.name} size={20}/><span style={{fontSize:11.5,color:"#6b6b80"}}>{task.responsible.name}</span></>:<span style={{fontSize:11.5,color:"#9898a8",fontStyle:"italic"}}>Unassigned</span>}</div></div>}
 
 function StageCard({stage,idx,colKey,onDragStart,canDrag,onEdit,onDelete,canEdit,mentors,teamMembers,onAssign}){
-  const assigned=stage.assignedTo?[...mentors,...teamMembers].find(m=>m.email===stage.assignedTo):null
+  const assignedList=Array.isArray(stage.assignedTo)?stage.assignedTo:stage.assignedTo?[stage.assignedTo]:[]
+  const assignedMembers=assignedList.map(email=>[...mentors,...teamMembers].find(m=>m.email===email)).filter(Boolean)
+  const unassignedTeam=teamMembers.filter(m=>!assignedList.includes(m.email))
   const borderL=colKey==="progress"?"#d97706":colKey==="completed"?"#16a34a":"#3b82f6"
   const bg=colKey==="progress"?"#fffdf5":colKey==="completed"?"#f5fcf8":"#fff"
   return<div draggable={canDrag} onDragStart={e=>{if(!canDrag){e.preventDefault();return}onDragStart(e,idx,colKey)}}
@@ -150,15 +152,18 @@ function StageCard({stage,idx,colKey,onDragStart,canDrag,onEdit,onDelete,canEdit
     <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:7}}>
       <p style={{fontSize:13,fontWeight:500,color:"#1a1a2e",lineHeight:1.4,flex:1}}>{stage.title}</p>
       {canDrag&&<GripVertical size={13} color="#c0c0cc" style={{flexShrink:0,marginTop:2}}/>}</div>
-    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:9}}>
-      <div style={{display:"flex",alignItems:"center",gap:5}}>
-        {assigned?<><Avatar name={assigned.name} size={20}/><span style={{fontSize:10.5,color:"#6b6b80"}}>{assigned.name.split(" ")[0]}</span></>
-          :canEdit?<SearchDropdown options={teamMembers.map(m=>({...m,value:m.email,label:m.name}))} value="" onChange={v=>onAssign(idx,colKey,v)} placeholder="Assign..."/>
-          :<span style={{fontSize:10.5,color:"#c0c0cc",fontStyle:"italic"}}>Unassigned</span>}</div>
-      <div style={{display:"flex",gap:3,alignItems:"center"}}>
-        {stage.completedAt&&<span style={{fontSize:9.5,color:"#c0c0cc"}}>{new Date(stage.completedAt).toLocaleDateString("en-IN",{day:"numeric",month:"short"})}</span>}
-        {canEdit&&<><button onClick={()=>onEdit(idx,colKey)} style={{background:"none",border:"none",cursor:"pointer",color:"#9898a8",display:"flex",padding:2}}><Edit3 size={11}/></button>
-          <button onClick={()=>onDelete(idx,colKey)} style={{background:"none",border:"none",cursor:"pointer",color:"#9898a8",display:"flex",padding:2}}><Trash2 size={11}/></button></>}</div></div></div>}
+    <div style={{marginTop:9}}>
+      {assignedMembers.length>0&&<div style={{display:"flex",flexWrap:"wrap",gap:4,marginBottom:6}}>
+        {assignedMembers.map((m,i)=><div key={i} style={{display:"flex",alignItems:"center",gap:4,padding:"3px 8px",background:"#f0f4ff",border:"1px solid #d8e4ff",borderRadius:6,fontSize:10.5,color:"#3b82f6"}}>
+          <Avatar name={m.name} size={16}/>{m.name.split(" ")[0]}</div>)}</div>}
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+        <div style={{display:"flex",alignItems:"center",gap:5}}>
+          {canEdit&&unassignedTeam.length>0&&<SearchDropdown options={unassignedTeam.map(m=>({...m,value:m.email,label:m.name}))} value="" onChange={v=>onAssign(idx,colKey,v)} placeholder={assignedMembers.length>0?"+Add":"Assign..."}/>}
+          {!canEdit&&assignedMembers.length===0&&<span style={{fontSize:10.5,color:"#c0c0cc",fontStyle:"italic"}}>Unassigned</span>}</div>
+        <div style={{display:"flex",gap:3,alignItems:"center"}}>
+          {stage.completedAt&&<span style={{fontSize:9.5,color:"#c0c0cc"}}>{new Date(stage.completedAt).toLocaleDateString("en-IN",{day:"numeric",month:"short"})}</span>}
+          {canEdit&&<><button onClick={()=>onEdit(idx,colKey)} style={{background:"none",border:"none",cursor:"pointer",color:"#9898a8",display:"flex",padding:2}}><Edit3 size={11}/></button>
+            <button onClick={()=>onDelete(idx,colKey)} style={{background:"none",border:"none",cursor:"pointer",color:"#9898a8",display:"flex",padding:2}}><Trash2 size={11}/></button></>}</div></div></div></div>}
 
 function KanbanBoard({stages,onSaveStages,canManage,isTM,currentUser,mentors,teamMembers,addToast,onRequestStage,onNotifyActivity}){
   const norm=s=>{const st=s.status;return(!st||st==="pending"||st==="todo")?"todo":st==="done"?"completed":st}
@@ -169,7 +174,7 @@ function KanbanBoard({stages,onSaveStages,canManage,isTM,currentUser,mentors,tea
   const onDragOver=e=>e.preventDefault()
   const onDrop=(e,targetCol)=>{e.preventDefault();if(!dragItem)return;const{idx,col:src}=dragItem;if(src===targetCol){setDragItem(null);return}
     const stage=getCol(src)[idx];if(!stage){setDragItem(null);return}
-    if(!canManage&&stage.assignedTo!==currentUser?.email){addToast("You can only move your sub-tasks","warning");setDragItem(null);return}
+    const assignArr=Array.isArray(stage.assignedTo)?stage.assignedTo:stage.assignedTo?[stage.assignedTo]:[];if(!canManage&&!assignArr.includes(currentUser?.email)){addToast("You can only move your sub-tasks","warning");setDragItem(null);return}
     onSaveStages(stages.map(s=>(s.title===stage.title&&norm(s)===src&&s.assignedTo===stage.assignedTo)?{...s,status:targetCol,completedAt:targetCol==="completed"?new Date().toISOString():targetCol==="todo"?null:s.completedAt}:s))
     onNotifyActivity&&onNotifyActivity(`Sub-task "${stage.title}" moved to ${targetCol==="progress"?"In Progress":"Completed"}`,currentUser?.name)
     setDragItem(null)}
@@ -178,14 +183,14 @@ function KanbanBoard({stages,onSaveStages,canManage,isTM,currentUser,mentors,tea
   const del=(idx,col)=>{if(!canManage)return;const s=getCol(col)[idx];onSaveStages(stages.filter(x=>!(x.title===s.title&&norm(x)===col&&x.assignedTo===s.assignedTo)))}
   const startEd=(idx,col)=>{setEditIdx(idx);setEditCol(col);setEditTitle(getCol(col)[idx].title)}
   const saveEd=()=>{if(!editTitle.trim())return;const s=getCol(editCol)[editIdx];onSaveStages(stages.map(x=>(x.title===s.title&&norm(x)===editCol&&x.assignedTo===s.assignedTo)?{...x,title:editTitle.trim()}:x));setEditIdx(null);setEditCol(null)}
-  const assignS=(idx,col,email)=>{const s=getCol(col)[idx];const m=mentors.find(x=>x.email===email);onSaveStages(stages.map(x=>(x.title===s.title&&norm(x)===col)?{...x,assignedTo:email}:x));if(m)addToast(`Assigned to ${m.name}`,"success")}
+  const assignS=(idx,col,email)=>{const s=getCol(col)[idx];const m=mentors.find(x=>x.email===email);onSaveStages(stages.map(x=>{if(x.title===s.title&&norm(x)===col){const curr=Array.isArray(x.assignedTo)?x.assignedTo:x.assignedTo?[x.assignedTo]:[];if(!curr.includes(email))return{...x,assignedTo:[...curr,email]};return x}return x}));if(m)addToast(`Assigned to ${m.name}`,"success")}
   const renderCol=colKey=>{const st=COL_STYLES[colKey];const items=getCol(colKey)
     return<div onDragOver={onDragOver} onDrop={e=>onDrop(e,colKey)} style={{flex:1,minWidth:240,background:st.bg,border:`1px solid ${st.border}`,borderRadius:14,display:"flex",flexDirection:"column",minHeight:200}}>
       <div style={{padding:"13px 15px 10px",borderBottom:`1px solid ${st.border}`,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
         <div style={{display:"flex",alignItems:"center",gap:7}}><div style={{width:7,height:7,borderRadius:"50%",background:st.color}}/><h3 style={{fontFamily:"var(--font-display)",fontSize:12,fontWeight:600,color:st.color}}>{st.label}</h3></div>
         <span style={{fontSize:11,fontWeight:700,color:st.color,background:`${st.color}12`,padding:"2px 7px",borderRadius:5}}>{items.length}</span></div>
       <div style={{padding:10,display:"flex",flexDirection:"column",gap:7,flex:1,overflowY:"auto"}}>
-        {items.map((stage,idx)=>{const canDrag=canManage||(stage.assignedTo===currentUser?.email)
+        {items.map((stage,idx)=>{const stgAssign=Array.isArray(stage.assignedTo)?stage.assignedTo:stage.assignedTo?[stage.assignedTo]:[];const canDrag=canManage||stgAssign.includes(currentUser?.email)
           if(editIdx===idx&&editCol===colKey)return<div key={idx} style={{background:"#fff",border:"1px solid #d0d0da",borderRadius:10,padding:"10px 12px"}}>
             <input value={editTitle} onChange={e=>setEditTitle(e.target.value)} onKeyDown={e=>e.key==="Enter"&&saveEd()} style={{width:"100%",padding:"7px 9px",background:"#f8f8fa",border:"1px solid #e5e5ec",borderRadius:7,color:"#1a1a2e",fontSize:12.5,marginBottom:7}} autoFocus/>
             <div style={{display:"flex",gap:5}}><button onClick={saveEd} style={{background:"#f0faf4",border:"1px solid #c0e8d0",borderRadius:7,padding:"5px 10px",color:"#16a34a",fontSize:11.5,fontWeight:600,cursor:"pointer"}}><Check size={11}/> Save</button>
