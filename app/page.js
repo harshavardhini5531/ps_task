@@ -32,16 +32,17 @@ function ProgressBar({done,total,color="#ff2d00"}){const pct=total>0?Math.round(
   return<div style={{display:"flex",alignItems:"center",gap:8}}><div style={{flex:1,height:5,background:"#f0f0f4",borderRadius:3,overflow:"hidden"}}><div style={{width:`${pct}%`,height:"100%",background:color,borderRadius:3,transition:"width .5s ease"}}/></div><span style={{fontSize:11,fontWeight:600,color,minWidth:32,textAlign:"right"}}>{pct}%</span></div>}
 
 function SearchDropdown({label,options,value,onChange,placeholder}){
-  const[open,setOpen]=useState(false);const[search,setSearch]=useState("");const ref=useRef(null)
+  const[open,setOpen]=useState(false);const[search,setSearch]=useState("");const ref=useRef(null);const btnRef=useRef(null);const[pos,setPos]=useState({top:0,left:0,width:0,openUp:false})
   const filtered=options.filter(o=>(o.label||o.name||"").toLowerCase().includes(search.toLowerCase())||(o.email||"").toLowerCase().includes(search.toLowerCase()))
   const selected=options.find(o=>o.value===value||o.email===value)
   useEffect(()=>{const h=e=>{if(ref.current&&!ref.current.contains(e.target))setOpen(false)};document.addEventListener("mousedown",h);return()=>document.removeEventListener("mousedown",h)},[])
+  const toggle=()=>{if(!open&&btnRef.current){const r=btnRef.current.getBoundingClientRect();const spaceBelow=window.innerHeight-r.bottom;const openUp=spaceBelow<260;setPos({top:openUp?r.top:r.bottom+4,left:r.left,width:Math.max(r.width,260),openUp})}setOpen(!open)}
   return<div ref={ref} style={{position:"relative",minWidth:200}}>
     {label&&<label style={{display:"block",fontSize:11,fontWeight:600,color:"#6b6b80",marginBottom:4,textTransform:"uppercase",letterSpacing:1.2}}>{label}</label>}
-    <button onClick={()=>setOpen(!open)} style={{width:"100%",padding:"10px 13px",background:"#fff",border:"1px solid #e5e5ec",borderRadius:10,color:selected?"#1a1a2e":"#9898a8",fontSize:13,fontFamily:"var(--font-body)",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"space-between",gap:8,textAlign:"left"}}>
+    <button ref={btnRef} onClick={toggle} style={{width:"100%",padding:"10px 13px",background:"#fff",border:"1px solid #e5e5ec",borderRadius:10,color:selected?"#1a1a2e":"#9898a8",fontSize:13,fontFamily:"var(--font-body)",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"space-between",gap:8,textAlign:"left"}}>
       <div style={{display:"flex",alignItems:"center",gap:7,flex:1,minWidth:0,overflow:"hidden"}}>{selected&&<Avatar name={selected.label||selected.name} size={20}/>}<span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{selected?(selected.label||selected.name):placeholder||"Select..."}</span></div>
       <ChevronDown size={13} style={{flexShrink:0,transition:"transform .2s",transform:open?"rotate(180deg)":"none",opacity:.4}}/></button>
-    {open&&<div style={{position:"absolute",top:"100%",left:0,minWidth:260,marginTop:4,background:"#fff",border:"1px solid #e5e5ec",borderRadius:10,boxShadow:"0 12px 40px rgba(0,0,0,.15)",zIndex:9000,maxHeight:240,display:"flex",flexDirection:"column",overflow:"hidden"}}>
+    {open&&<div style={{position:"fixed",left:pos.left,width:pos.width,top:pos.openUp?"auto":pos.top,bottom:pos.openUp?(window.innerHeight-pos.top+4):"auto",background:"#fff",border:"1px solid #e5e5ec",borderRadius:10,boxShadow:"0 12px 40px rgba(0,0,0,.15)",zIndex:9999,maxHeight:240,display:"flex",flexDirection:"column",overflow:"hidden"}}>
       <div style={{padding:"8px 10px",borderBottom:"1px solid #f0f0f4"}}><div style={{position:"relative"}}><Search size={13} style={{position:"absolute",left:10,top:"50%",transform:"translateY(-50%)",color:"#9898a8"}}/>
         <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search..." autoFocus style={{width:"100%",padding:"8px 10px 8px 32px",background:"#f8f8fa",border:"1px solid #e5e5ec",borderRadius:8,color:"#1a1a2e",fontSize:12.5}}/></div></div>
       <div style={{overflowY:"auto",flex:1}}>{filtered.length===0&&<div style={{padding:"12px 14px",color:"#9898a8",fontSize:12,textAlign:"center"}}>No results</div>}
@@ -287,17 +288,28 @@ function TaskDetail({task,mentors,onClose,onUpdate,isAdmin,currentUser,addToast,
       onSendNotification({type:"stage-moved",taskTitle:task.title,message:`${fromName}: ${message} in "${task.title}"`,targetEmail:ae,fromName,fromEmail:currentUser?.email})})}
 
   const stages=task.stages||[];const done=stages.filter(s=>s.status==="completed").length
+  const[editingTitle,setEditingTitle]=useState(false);const[titleVal,setTitleVal]=useState(task.title)
+  const saveTitle=()=>{if(!titleVal.trim())return;saveTask({title:titleVal.trim()});setEditingTitle(false);addToast("Task renamed","success")}
+  const deleteTask=async()=>{if(!confirm(`Delete "${task.title}"? This cannot be undone.`))return;try{const r=await fetch(`/api/tasks/${task._id}`,{method:"DELETE"});if(r.ok){addToast("Task deleted","success");onUpdate();onClose()}else addToast("Failed","error")}catch{addToast("Error","error")}}
 
   return<div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.3)",backdropFilter:"blur(4px)",zIndex:1000,overflow:"auto"}} onClick={onClose}>
     <div className="scale-in" onClick={e=>e.stopPropagation()} style={{background:"#f8f8fa",minHeight:"100vh",maxWidth:1140,margin:"0 auto",borderLeft:"1px solid #e5e5ec",borderRight:"1px solid #e5e5ec"}}>
       <div className="task-header" style={{padding:"18px 26px",borderBottom:"1px solid #e5e5ec",display:"flex",justifyContent:"space-between",alignItems:"center",position:"sticky",top:0,background:"#fff",zIndex:10}}>
-        <div style={{display:"flex",alignItems:"center",gap:12}}>
-          <button onClick={onClose} style={{background:"#f8f8fa",border:"1px solid #e5e5ec",borderRadius:9,width:34,height:34,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",color:"#6b6b80"}}><ArrowLeft size={15}/></button>
-          <div><h2 style={{fontFamily:"var(--font-display)",fontSize:18,fontWeight:600,color:"#1a1a2e"}}>{task.title}</h2>
+        <div style={{display:"flex",alignItems:"center",gap:12,flex:1,minWidth:0}}>
+          <button onClick={onClose} style={{background:"#f8f8fa",border:"1px solid #e5e5ec",borderRadius:9,width:34,height:34,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",color:"#6b6b80",flexShrink:0}}><ArrowLeft size={15}/></button>
+          <div style={{flex:1,minWidth:0}}>
+            {editingTitle?<div style={{display:"flex",gap:6,alignItems:"center"}}>
+              <input value={titleVal} onChange={e=>setTitleVal(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")saveTitle();if(e.key==="Escape"){setEditingTitle(false);setTitleVal(task.title)}}} style={{flex:1,padding:"6px 10px",background:"#f8f8fa",border:"1px solid #d0d0da",borderRadius:8,color:"#1a1a2e",fontSize:17,fontWeight:600,fontFamily:"var(--font-display)"}} autoFocus/>
+              <button onClick={saveTitle} style={{background:"#f0faf4",border:"1px solid #c0e8d0",borderRadius:7,padding:"6px 10px",color:"#16a34a",cursor:"pointer",display:"flex"}}><Check size={14}/></button>
+              <button onClick={()=>{setEditingTitle(false);setTitleVal(task.title)}} style={{background:"#f8f8fa",border:"1px solid #e5e5ec",borderRadius:7,padding:"6px 10px",color:"#6b6b80",cursor:"pointer",display:"flex"}}><X size={14}/></button></div>
+            :<div style={{display:"flex",alignItems:"center",gap:8}}>
+              <h2 style={{fontFamily:"var(--font-display)",fontSize:18,fontWeight:600,color:"#1a1a2e"}}>{task.title}</h2>
+              {isAdmin&&<button onClick={()=>setEditingTitle(true)} style={{background:"none",border:"none",cursor:"pointer",color:"#9898a8",display:"flex",padding:2}} title="Edit task name"><Edit3 size={14}/></button>}
+              {isAdmin&&<button onClick={deleteTask} style={{background:"none",border:"none",cursor:"pointer",color:"#dc2626",display:"flex",padding:2}} title="Delete task"><Trash2 size={14}/></button>}</div>}
             <div style={{display:"flex",alignItems:"center",gap:10,marginTop:3}}>
               {task.responsible&&<div style={{display:"flex",alignItems:"center",gap:4}}><Avatar name={task.responsible.name} size={16}/><span style={{fontSize:11.5,color:"#6b6b80"}}>{task.responsible.name}</span></div>}
               <span style={{fontSize:10.5,color:"#c0c0cc"}}>{stages.length} sub-tasks</span></div></div></div>
-        <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
+        <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap",flexShrink:0}}>
           <div style={{minWidth:120}}><ProgressBar done={done} total={stages.length}/></div>
           {canManage&&(task.responsible||(task.teamMembers||[]).length>0)&&<Btn variant="notify" onClick={notifyNew} disabled={pendingNotify}><BellRing size={14}/> {pendingNotify?"Sending...":"Notify New"}</Btn>}</div></div>
 
@@ -339,7 +351,7 @@ function AdminDashboard({user,tasks,mentors,onLogout,onRefresh,addToast,notifica
   const progressItems=allSubTasks.filter(s=>s.statusNorm==="progress")
   const completedItems=allSubTasks.filter(s=>s.statusNorm==="completed")
 
-  return<div style={{minHeight:"100vh",background:"#f8f8fa"}}><div className="top-bar" style={{padding:"14px 26px",borderBottom:"1px solid #e5e5ec",display:"flex",justifyContent:"space-between",alignItems:"center",background:"#fff"}}>
+  return<div style={{minHeight:"100vh",background:"#f8f8fa"}}><div className="top-bar" style={{padding:"14px 26px",borderBottom:"1px solid #e5e5ec",display:"flex",justifyContent:"space-between",alignItems:"center",background:"#fff",position:"sticky",top:0,zIndex:50}}>
     <div style={{display:"flex",alignItems:"center",gap:10}}><div style={{width:34,height:34,borderRadius:9,background:"linear-gradient(135deg,#ff2d00,#cc2400)",display:"flex",alignItems:"center",justifyContent:"center"}}><ClipboardList size={16} color="#fff"/></div>
       <div><h1 style={{fontFamily:"var(--font-display)",fontSize:15,fontWeight:600,color:"#1a1a2e"}}>ProjectSpace</h1><p style={{fontSize:10.5,color:"#9898a8"}}>Admin</p></div></div>
     <div className="top-bar-right" style={{display:"flex",alignItems:"center",gap:10}}>
@@ -347,8 +359,8 @@ function AdminDashboard({user,tasks,mentors,onLogout,onRefresh,addToast,notifica
         {unreadCount>0&&<div style={{position:"absolute",top:-4,right:-4,width:18,height:18,borderRadius:"50%",background:"#ff2d00",color:"#fff",fontSize:10,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center",animation:"notifPulse 2s infinite"}}>{unreadCount}</div>}</button>
       <Avatar name={user.name} size={28}/><span style={{fontSize:12.5,color:"#6b6b80"}}>{user.name}</span><Btn variant="ghost" onClick={onLogout} style={{color:"#9898a8"}}><LogOut size={14}/></Btn></div></div>
 
-    {/* Tabs */}
-    <div style={{padding:"0 26px",background:"#fff",borderBottom:"1px solid #e5e5ec",display:"flex",gap:0}}>
+    {/* Tabs - also sticky below top bar */}
+    <div style={{padding:"0 26px",background:"#fff",borderBottom:"1px solid #e5e5ec",display:"flex",gap:0,position:"sticky",top:52,zIndex:49,boxShadow:"0 1px 3px rgba(0,0,0,.03)"}}>
       <button onClick={()=>setActiveTab("tasks")} style={{padding:"14px 24px",background:"none",border:"none",borderBottom:activeTab==="tasks"?"2px solid #ff2d00":"2px solid transparent",color:activeTab==="tasks"?"#ff2d00":"#9898a8",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"var(--font-body)",display:"flex",alignItems:"center",gap:6,transition:"all .2s"}}><ClipboardList size={14}/> Tasks</button>
       <button onClick={()=>setActiveTab("status")} style={{padding:"14px 24px",background:"none",border:"none",borderBottom:activeTab==="status"?"2px solid #3b82f6":"2px solid transparent",color:activeTab==="status"?"#3b82f6":"#9898a8",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"var(--font-body)",display:"flex",alignItems:"center",gap:6,transition:"all .2s"}}><BarChart3 size={14}/> Tasks Status</button>
     </div>
@@ -431,7 +443,7 @@ function MentorDashboard({user,tasks,mentors,onLogout,onRefresh,addToast,notific
   const filtered=myTasks.filter(t=>{const q=search.toLowerCase();if(!q)return true;return t.title.toLowerCase().includes(q)})
   let totalS=0,doneS=0;myTasks.forEach(t=>(t.stages||[]).forEach(s=>{totalS++;if(s.status==="completed")doneS++}))
   const resp=myTasks.filter(t=>t.responsible?.email===user.email).length;const activeTask=openTask?tasks.find(t=>t._id===openTask):null
-  return<div style={{minHeight:"100vh",background:"#f8f8fa"}}><div className="top-bar" style={{padding:"14px 26px",borderBottom:"1px solid #e5e5ec",display:"flex",justifyContent:"space-between",alignItems:"center",background:"#fff"}}>
+  return<div style={{minHeight:"100vh",background:"#f8f8fa"}}><div className="top-bar" style={{padding:"14px 26px",borderBottom:"1px solid #e5e5ec",display:"flex",justifyContent:"space-between",alignItems:"center",background:"#fff",position:"sticky",top:0,zIndex:50}}>
     <div style={{display:"flex",alignItems:"center",gap:10}}><div style={{width:34,height:34,borderRadius:9,background:"linear-gradient(135deg,#3b82f6,#2563eb)",display:"flex",alignItems:"center",justifyContent:"center"}}><ClipboardList size={16} color="#fff"/></div>
       <div><h1 style={{fontFamily:"var(--font-display)",fontSize:15,fontWeight:600,color:"#1a1a2e"}}>ProjectSpace</h1><p style={{fontSize:10.5,color:"#9898a8"}}>Mentor</p></div></div>
     <div className="top-bar-right" style={{display:"flex",alignItems:"center",gap:10}}>
