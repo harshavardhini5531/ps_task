@@ -326,15 +326,15 @@ function TaskDetail({task,mentors,onClose,onUpdate,isAdmin,currentUser,addToast,
     </div></div>}
 
 /* ═══ DASHBOARDS ═══ */
-function AdminDashboard({user,tasks,mentors,onLogout,onRefresh,addToast,notifications,onToggleNotifs,unreadCount,onSendNotification}){const[search,setSearch]=useState("");const[openTask,setOpenTask]=useState(null);const[showAddTask,setShowAddTask]=useState(false);const[newTitle,setNewTitle]=useState("");const[newDesc,setNewDesc]=useState("");const[showOverview,setShowOverview]=useState(false)
+function AdminDashboard({user,tasks,mentors,onLogout,onRefresh,addToast,notifications,onToggleNotifs,unreadCount,onSendNotification}){const[search,setSearch]=useState("");const[openTask,setOpenTask]=useState(null);const[showAddTask,setShowAddTask]=useState(false);const[newTitle,setNewTitle]=useState("");const[newDesc,setNewDesc]=useState("");const[activeTab,setActiveTab]=useState("tasks")
   const filtered=tasks.filter(t=>{const q=search.toLowerCase();if(!q)return true;return t.title.toLowerCase().includes(q)||(t.responsible?.name||"").toLowerCase().includes(q)||(t.stages||[]).some(s=>s.title.toLowerCase().includes(q))})
   let totalS=0,doneS=0,progS=0;tasks.forEach(t=>(t.stages||[]).forEach(s=>{totalS++;if(s.status==="completed")doneS++;if(s.status==="progress")progS++}))
   const pendingS=totalS-doneS-progS
   const assigned=tasks.filter(t=>t.responsible).length;const activeTask=openTask?tasks.find(t=>t._id===openTask):null
   const addTask=async()=>{if(!newTitle.trim())return;try{const r=await fetch("/api/tasks",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({title:newTitle.trim(),description:newDesc.trim()})});if(r.ok){addToast(`Task created!`,"success");setNewTitle("");setNewDesc("");setShowAddTask(false);onRefresh()}else addToast("Failed","error")}catch{addToast("Error","error")}}
 
-  // Collect all sub-tasks with their parent task name for overview
-  const allSubTasks=[];tasks.forEach(t=>(t.stages||[]).forEach(s=>{const st=(!s.status||s.status==="todo"||s.status==="pending")?"pending":s.status;allSubTasks.push({...s,taskTitle:t.title,taskId:t._id,responsible:t.responsible,statusNorm:st})}))
+  // Collect all sub-tasks for status overview
+  const allSubTasks=[];tasks.forEach(t=>(t.stages||[]).forEach(s=>{const st=(!s.status||s.status==="todo"||s.status==="pending")?"pending":s.status;const assignedNames=Array.isArray(s.assignedTo)?s.assignedTo.map(e=>mentors.find(m=>m.email===e)?.name||e).join(", "):s.assignedTo?mentors.find(m=>m.email===s.assignedTo)?.name||s.assignedTo:"";allSubTasks.push({...s,taskTitle:t.title,taskId:t._id,responsible:t.responsible,statusNorm:st,assignedNames})}))
   const pendingItems=allSubTasks.filter(s=>s.statusNorm==="pending")
   const progressItems=allSubTasks.filter(s=>s.statusNorm==="progress")
   const completedItems=allSubTasks.filter(s=>s.statusNorm==="completed")
@@ -346,52 +346,75 @@ function AdminDashboard({user,tasks,mentors,onLogout,onRefresh,addToast,notifica
       <button onClick={onToggleNotifs} style={{position:"relative",background:"#f8f8fa",border:"1px solid #e5e5ec",borderRadius:9,width:34,height:34,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",color:"#6b6b80"}}><Bell size={16}/>
         {unreadCount>0&&<div style={{position:"absolute",top:-4,right:-4,width:18,height:18,borderRadius:"50%",background:"#ff2d00",color:"#fff",fontSize:10,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center",animation:"notifPulse 2s infinite"}}>{unreadCount}</div>}</button>
       <Avatar name={user.name} size={28}/><span style={{fontSize:12.5,color:"#6b6b80"}}>{user.name}</span><Btn variant="ghost" onClick={onLogout} style={{color:"#9898a8"}}><LogOut size={14}/></Btn></div></div>
-    <div style={{padding:"22px 26px",maxWidth:1140,margin:"0 auto"}}>
+
+    {/* Tabs */}
+    <div style={{padding:"0 26px",background:"#fff",borderBottom:"1px solid #e5e5ec",display:"flex",gap:0}}>
+      <button onClick={()=>setActiveTab("tasks")} style={{padding:"14px 24px",background:"none",border:"none",borderBottom:activeTab==="tasks"?"2px solid #ff2d00":"2px solid transparent",color:activeTab==="tasks"?"#ff2d00":"#9898a8",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"var(--font-body)",display:"flex",alignItems:"center",gap:6,transition:"all .2s"}}><ClipboardList size={14}/> Tasks</button>
+      <button onClick={()=>setActiveTab("status")} style={{padding:"14px 24px",background:"none",border:"none",borderBottom:activeTab==="status"?"2px solid #3b82f6":"2px solid transparent",color:activeTab==="status"?"#3b82f6":"#9898a8",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"var(--font-body)",display:"flex",alignItems:"center",gap:6,transition:"all .2s"}}><BarChart3 size={14}/> Tasks Status</button>
+    </div>
+
+    {activeTab==="tasks"&&<div style={{padding:"22px 26px",maxWidth:1140,margin:"0 auto"}}>
       <div className="stat-grid" style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(180px,1fr))",gap:12,marginBottom:24}}>
         <StatCard icon={ClipboardList} value={tasks.length} label="Tasks"/><StatCard icon={Users} value={assigned} label="Assigned" color="#3b82f6"/><StatCard icon={Clock} value={progS} label="In Progress" color="#d97706"/><StatCard icon={CheckCircle2} value={doneS} label="Completed" color="#16a34a"/></div>
       <div style={{display:"flex",gap:10,marginBottom:22,flexWrap:"wrap"}}>
         <div style={{flex:1,minWidth:200,position:"relative"}}><Search size={15} style={{position:"absolute",left:13,top:"50%",transform:"translateY(-50%)",color:"#9898a8"}}/>
           <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search..." style={{width:"100%",padding:"11px 16px 11px 40px",background:"#fff",border:"1px solid #e5e5ec",borderRadius:10,color:"#1a1a2e",fontSize:13,boxShadow:"0 1px 3px rgba(0,0,0,.03)"}}/></div>
-        <Btn onClick={()=>setShowAddTask(true)}><Plus size={14}/> Add Task</Btn>
-        <Btn variant="secondary" onClick={()=>setShowOverview(!showOverview)} style={{border:"1px solid #c8d8ff",background:showOverview?"#f0f4ff":"#fff",color:"#3b82f6"}}><BarChart3 size={14}/> Tasks Status</Btn></div>
-
-      {/* Tasks Status Overview */}
-      {showOverview&&<div style={{marginBottom:24,background:"#fff",border:"1px solid #e5e5ec",borderRadius:16,boxShadow:"0 2px 8px rgba(0,0,0,.04)",overflow:"hidden"}}>
-        <div style={{padding:"16px 20px",borderBottom:"1px solid #e5e5ec",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-          <h3 style={{fontFamily:"var(--font-display)",fontSize:15,fontWeight:600,color:"#1a1a2e"}}>All Sub-Tasks Overview</h3>
-          <div style={{display:"flex",gap:12,fontSize:12,fontWeight:600}}>
-            <span style={{color:"#3b82f6"}}>Pending: {pendingItems.length}</span>
-            <span style={{color:"#d97706"}}>In Progress: {progressItems.length}</span>
-            <span style={{color:"#16a34a"}}>Completed: {completedItems.length}</span></div></div>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",minHeight:200}}>
-          {/* Pending Column */}
-          <div style={{borderRight:"1px solid #e5e5ec",padding:12}}>
-            <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:10}}><div style={{width:8,height:8,borderRadius:"50%",background:"#3b82f6"}}/><span style={{fontSize:12,fontWeight:600,color:"#3b82f6"}}>Pending ({pendingItems.length})</span></div>
-            <div style={{display:"flex",flexDirection:"column",gap:6,maxHeight:300,overflowY:"auto"}}>
-              {pendingItems.map((s,i)=><div key={i} style={{padding:"8px 10px",background:"#f5f8ff",border:"1px solid #d8e4ff",borderLeft:"3px solid #3b82f6",borderRadius:8,fontSize:12}}>
-                <div style={{fontWeight:500,color:"#1a1a2e"}}>{s.title}</div>
-                <div style={{fontSize:10.5,color:"#9898a8",marginTop:2}}>{s.taskTitle}</div>
-              </div>)}</div></div>
-          {/* In Progress Column */}
-          <div style={{borderRight:"1px solid #e5e5ec",padding:12}}>
-            <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:10}}><div style={{width:8,height:8,borderRadius:"50%",background:"#d97706"}}/><span style={{fontSize:12,fontWeight:600,color:"#d97706"}}>In Progress ({progressItems.length})</span></div>
-            <div style={{display:"flex",flexDirection:"column",gap:6,maxHeight:300,overflowY:"auto"}}>
-              {progressItems.map((s,i)=><div key={i} style={{padding:"8px 10px",background:"#fffbf0",border:"1px solid #ffe8b8",borderLeft:"3px solid #d97706",borderRadius:8,fontSize:12}}>
-                <div style={{fontWeight:500,color:"#1a1a2e"}}>{s.title}</div>
-                <div style={{fontSize:10.5,color:"#9898a8",marginTop:2}}>{s.taskTitle}</div>
-              </div>)}</div></div>
-          {/* Completed Column */}
-          <div style={{padding:12}}>
-            <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:10}}><div style={{width:8,height:8,borderRadius:"50%",background:"#16a34a"}}/><span style={{fontSize:12,fontWeight:600,color:"#16a34a"}}>Completed ({completedItems.length})</span></div>
-            <div style={{display:"flex",flexDirection:"column",gap:6,maxHeight:300,overflowY:"auto"}}>
-              {completedItems.map((s,i)=><div key={i} style={{padding:"8px 10px",background:"#f0faf4",border:"1px solid #c0e8d0",borderLeft:"3px solid #16a34a",borderRadius:8,fontSize:12}}>
-                <div style={{fontWeight:500,color:"#1a1a2e"}}>{s.title}</div>
-                <div style={{fontSize:10.5,color:"#9898a8",marginTop:2}}>{s.taskTitle}</div>
-              </div>)}</div></div>
-        </div></div>}
-
+        <Btn onClick={()=>setShowAddTask(true)}><Plus size={14}/> Add Task</Btn></div>
       <div className="dash-grid" style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))",gap:12}}>{filtered.map((t,i)=><TaskCard key={t._id} task={t} index={i} onClick={()=>setOpenTask(t._id)}/>)}</div>
-      {filtered.length===0&&<div style={{textAlign:"center",padding:50,color:"#9898a8"}}><Search size={36} style={{marginBottom:10,opacity:.3}}/><p style={{fontFamily:"var(--font-display)",fontSize:15,fontWeight:600,color:"#6b6b80"}}>No tasks</p></div>}</div>
+      {filtered.length===0&&<div style={{textAlign:"center",padding:50,color:"#9898a8"}}><Search size={36} style={{marginBottom:10,opacity:.3}}/><p style={{fontFamily:"var(--font-display)",fontSize:15,fontWeight:600,color:"#6b6b80"}}>No tasks</p></div>}</div>}
+
+    {/* Tasks Status Tab - Full Page */}
+    {activeTab==="status"&&<div style={{padding:"22px 26px",maxWidth:1140,margin:"0 auto"}}>
+      <div className="stat-grid" style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:24}}>
+        <div style={{background:"#fff",border:"1px solid #fcc",borderRadius:14,padding:"16px 18px",boxShadow:"0 1px 4px rgba(0,0,0,.03)"}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}><div><div style={{fontFamily:"var(--font-display)",fontSize:26,fontWeight:700,color:"#dc2626"}}>{pendingItems.length}</div><div style={{fontSize:10.5,color:"#dc2626",textTransform:"uppercase",letterSpacing:1,fontWeight:600,marginTop:2}}>Pending</div></div><div style={{width:34,height:34,borderRadius:9,background:"#fef5f5",display:"flex",alignItems:"center",justifyContent:"center"}}><AlertCircle size={16} color="#dc2626"/></div></div></div>
+        <div style={{background:"#fff",border:"1px solid #ffe8b8",borderRadius:14,padding:"16px 18px",boxShadow:"0 1px 4px rgba(0,0,0,.03)"}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}><div><div style={{fontFamily:"var(--font-display)",fontSize:26,fontWeight:700,color:"#d97706"}}>{progressItems.length}</div><div style={{fontSize:10.5,color:"#d97706",textTransform:"uppercase",letterSpacing:1,fontWeight:600,marginTop:2}}>In Progress</div></div><div style={{width:34,height:34,borderRadius:9,background:"#fffbf0",display:"flex",alignItems:"center",justifyContent:"center"}}><Clock size={16} color="#d97706"/></div></div></div>
+        <div style={{background:"#fff",border:"1px solid #c0e8d0",borderRadius:14,padding:"16px 18px",boxShadow:"0 1px 4px rgba(0,0,0,.03)"}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}><div><div style={{fontFamily:"var(--font-display)",fontSize:26,fontWeight:700,color:"#16a34a"}}>{completedItems.length}</div><div style={{fontSize:10.5,color:"#16a34a",textTransform:"uppercase",letterSpacing:1,fontWeight:600,marginTop:2}}>Completed</div></div><div style={{width:34,height:34,borderRadius:9,background:"#f0faf4",display:"flex",alignItems:"center",justifyContent:"center"}}><CheckCircle2 size={16} color="#16a34a"/></div></div></div></div>
+
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:16}}>
+        {/* Pending - RED themed */}
+        <div style={{background:"#fff",border:"1px solid #fcc",borderRadius:16,overflow:"hidden"}}>
+          <div style={{padding:"14px 16px",background:"#fef5f5",borderBottom:"1px solid #fcc",display:"flex",alignItems:"center",gap:7}}>
+            <div style={{width:8,height:8,borderRadius:"50%",background:"#dc2626"}}/><h3 style={{fontFamily:"var(--font-display)",fontSize:13,fontWeight:600,color:"#dc2626"}}>Pending</h3>
+            <span style={{marginLeft:"auto",fontSize:11,fontWeight:700,color:"#dc2626",background:"#fee",padding:"2px 8px",borderRadius:5}}>{pendingItems.length}</span></div>
+          <div style={{padding:12,display:"flex",flexDirection:"column",gap:6,maxHeight:"calc(100vh - 280px)",overflowY:"auto"}}>
+            {pendingItems.length===0&&<div style={{textAlign:"center",padding:24,color:"#c0c0cc",fontSize:12}}>No pending sub-tasks</div>}
+            {pendingItems.map((s,i)=><div key={i} style={{padding:"10px 12px",background:"#fff8f8",border:"1px solid #fdd",borderLeft:"3px solid #dc2626",borderRadius:8}}>
+              <div style={{fontSize:12.5,fontWeight:500,color:"#1a1a2e"}}>{s.title}</div>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:4}}>
+                <span style={{fontSize:10.5,color:"#9898a8"}}>{s.taskTitle}</span>
+                {s.assignedNames&&<span style={{fontSize:10,color:"#dc2626",fontWeight:500}}>{s.assignedNames}</span>}</div>
+            </div>)}</div></div>
+
+        {/* In Progress - AMBER themed */}
+        <div style={{background:"#fff",border:"1px solid #ffe8b8",borderRadius:16,overflow:"hidden"}}>
+          <div style={{padding:"14px 16px",background:"#fffbf0",borderBottom:"1px solid #ffe8b8",display:"flex",alignItems:"center",gap:7}}>
+            <div style={{width:8,height:8,borderRadius:"50%",background:"#d97706"}}/><h3 style={{fontFamily:"var(--font-display)",fontSize:13,fontWeight:600,color:"#d97706"}}>In Progress</h3>
+            <span style={{marginLeft:"auto",fontSize:11,fontWeight:700,color:"#d97706",background:"#fff4e0",padding:"2px 8px",borderRadius:5}}>{progressItems.length}</span></div>
+          <div style={{padding:12,display:"flex",flexDirection:"column",gap:6,maxHeight:"calc(100vh - 280px)",overflowY:"auto"}}>
+            {progressItems.length===0&&<div style={{textAlign:"center",padding:24,color:"#c0c0cc",fontSize:12}}>No in-progress sub-tasks</div>}
+            {progressItems.map((s,i)=><div key={i} style={{padding:"10px 12px",background:"#fffdf5",border:"1px solid #ffe8b8",borderLeft:"3px solid #d97706",borderRadius:8}}>
+              <div style={{fontSize:12.5,fontWeight:500,color:"#1a1a2e"}}>{s.title}</div>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:4}}>
+                <span style={{fontSize:10.5,color:"#9898a8"}}>{s.taskTitle}</span>
+                {s.assignedNames&&<span style={{fontSize:10,color:"#d97706",fontWeight:500}}>{s.assignedNames}</span>}</div>
+            </div>)}</div></div>
+
+        {/* Completed - GREEN themed */}
+        <div style={{background:"#fff",border:"1px solid #c0e8d0",borderRadius:16,overflow:"hidden"}}>
+          <div style={{padding:"14px 16px",background:"#f0faf4",borderBottom:"1px solid #c0e8d0",display:"flex",alignItems:"center",gap:7}}>
+            <div style={{width:8,height:8,borderRadius:"50%",background:"#16a34a"}}/><h3 style={{fontFamily:"var(--font-display)",fontSize:13,fontWeight:600,color:"#16a34a"}}>Completed</h3>
+            <span style={{marginLeft:"auto",fontSize:11,fontWeight:700,color:"#16a34a",background:"#e0f5e8",padding:"2px 8px",borderRadius:5}}>{completedItems.length}</span></div>
+          <div style={{padding:12,display:"flex",flexDirection:"column",gap:6,maxHeight:"calc(100vh - 280px)",overflowY:"auto"}}>
+            {completedItems.length===0&&<div style={{textAlign:"center",padding:24,color:"#c0c0cc",fontSize:12}}>No completed sub-tasks</div>}
+            {completedItems.map((s,i)=><div key={i} style={{padding:"10px 12px",background:"#f5fcf8",border:"1px solid #c0e8d0",borderLeft:"3px solid #16a34a",borderRadius:8}}>
+              <div style={{fontSize:12.5,fontWeight:500,color:"#1a1a2e"}}>{s.title}</div>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:4}}>
+                <span style={{fontSize:10.5,color:"#9898a8"}}>{s.taskTitle}</span>
+                {s.assignedNames&&<span style={{fontSize:10,color:"#16a34a",fontWeight:500}}>{s.assignedNames}</span>}</div>
+            </div>)}</div></div>
+      </div>
+    </div>}
+
     {activeTask&&<TaskDetail task={activeTask} mentors={mentors} onClose={()=>setOpenTask(null)} onUpdate={onRefresh} isAdmin={true} currentUser={user} addToast={addToast} onSendNotification={onSendNotification}/>}
     {showAddTask&&<div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.3)",backdropFilter:"blur(4px)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:20}} onClick={()=>setShowAddTask(false)}>
       <div className="scale-in" onClick={e=>e.stopPropagation()} style={{background:"#fff",border:"1px solid #e5e5ec",borderRadius:20,padding:"36px 32px",width:"100%",maxWidth:460,boxShadow:"0 20px 60px rgba(0,0,0,.1)"}}>
