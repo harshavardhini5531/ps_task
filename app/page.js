@@ -41,7 +41,7 @@ function SearchDropdown({label,options,value,onChange,placeholder}){
     <button onClick={()=>setOpen(!open)} style={{width:"100%",padding:"10px 13px",background:"#fff",border:"1px solid #e5e5ec",borderRadius:10,color:selected?"#1a1a2e":"#9898a8",fontSize:13,fontFamily:"var(--font-body)",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"space-between",gap:8,textAlign:"left"}}>
       <div style={{display:"flex",alignItems:"center",gap:7,flex:1,minWidth:0,overflow:"hidden"}}>{selected&&<Avatar name={selected.label||selected.name} size={20}/>}<span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{selected?(selected.label||selected.name):placeholder||"Select..."}</span></div>
       <ChevronDown size={13} style={{flexShrink:0,transition:"transform .2s",transform:open?"rotate(180deg)":"none",opacity:.4}}/></button>
-    {open&&<div style={{position:"absolute",top:"100%",left:0,minWidth:260,marginTop:4,background:"#fff",border:"1px solid #e5e5ec",borderRadius:10,boxShadow:"0 12px 40px rgba(0,0,0,.1)",zIndex:100,maxHeight:240,display:"flex",flexDirection:"column",overflow:"hidden"}}>
+    {open&&<div style={{position:"absolute",top:"100%",left:0,minWidth:260,marginTop:4,background:"#fff",border:"1px solid #e5e5ec",borderRadius:10,boxShadow:"0 12px 40px rgba(0,0,0,.15)",zIndex:9000,maxHeight:240,display:"flex",flexDirection:"column",overflow:"hidden"}}>
       <div style={{padding:"8px 10px",borderBottom:"1px solid #f0f0f4"}}><div style={{position:"relative"}}><Search size={13} style={{position:"absolute",left:10,top:"50%",transform:"translateY(-50%)",color:"#9898a8"}}/>
         <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search..." autoFocus style={{width:"100%",padding:"8px 10px 8px 32px",background:"#f8f8fa",border:"1px solid #e5e5ec",borderRadius:8,color:"#1a1a2e",fontSize:12.5}}/></div></div>
       <div style={{overflowY:"auto",flex:1}}>{filtered.length===0&&<div style={{padding:"12px 14px",color:"#9898a8",fontSize:12,textAlign:"center"}}>No results</div>}
@@ -90,13 +90,14 @@ function RolePickPage({onPick,onBack,mode}){const isLogin=mode==="login"
       <div style={{textAlign:"left"}}><div style={{fontWeight:600}}>Mentor</div><div style={{fontSize:11.5,color:"#6b6b80",fontWeight:400}}>Manage tasks</div></div></button></div>
   <button onClick={onBack} style={{width:"100%",marginTop:18,padding:11,borderRadius:10,border:"1px solid #e5e5ec",background:"transparent",color:"#6b6b80",fontSize:13,fontWeight:500,cursor:"pointer",fontFamily:"var(--font-body)",display:"flex",alignItems:"center",justifyContent:"center",gap:5}}><ArrowLeft size={13}/> Back</button></div></div>}
 
-function LoginPage({onSubmit,onBack,loading,prefillEmail,role}){const[email,setEmail]=useState(prefillEmail||"");const[pw,setPw]=useState("");const[err,setErr]=useState("");const go=()=>{setErr("");if(!email||!pw)return setErr("Required");onSubmit(email.trim().toLowerCase(),pw)};const isA=role==="admin"
+function LoginPage({onSubmit,onBack,loading,prefillEmail,role,onForgot}){const[email,setEmail]=useState(prefillEmail||"");const[pw,setPw]=useState("");const[err,setErr]=useState("");const go=()=>{setErr("");if(!email||!pw)return setErr("Required");onSubmit(email.trim().toLowerCase(),pw)};const isA=role==="admin"
   return<div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:"#f8f8fa"}}><div className="fade-up" style={{background:"#fff",border:"1px solid #e5e5ec",borderRadius:20,padding:"44px 36px",width:"100%",maxWidth:420,boxShadow:"0 8px 32px rgba(0,0,0,.06)"}}>
     <div style={{width:50,height:50,borderRadius:14,background:isA?"linear-gradient(135deg,#ff2d00,#cc2400)":"linear-gradient(135deg,#3b82f6,#2563eb)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 18px"}}>{isA?<Shield size={22} color="#fff"/>:<User size={22} color="#fff"/>}</div>
     <h2 style={{fontFamily:"var(--font-display)",fontSize:22,fontWeight:600,textAlign:"center",marginBottom:28,color:"#1a1a2e"}}>{isA?"Admin":"Mentor"} Login</h2>
     {err&&<div style={{padding:"9px 13px",borderRadius:8,background:"#fef5f5",border:"1px solid #f5c0c0",color:"#dc2626",fontSize:12.5,marginBottom:14,display:"flex",alignItems:"center",gap:7}}><AlertCircle size={13}/>{err}</div>}
     <FormInput label="Email" icon={Mail} value={email} onChange={setEmail} placeholder="email@adityauniversity.in" disabled={!!prefillEmail} autoFocus={!prefillEmail}/>
     <FormInput label="Password" icon={Lock} type="password" value={pw} onChange={setPw} placeholder="Password" onKeyDown={e=>e.key==="Enter"&&go()} autoFocus={!!prefillEmail}/>
+    <div style={{textAlign:"right",marginTop:-10,marginBottom:14}}><button onClick={()=>onForgot(email)} style={{background:"none",border:"none",color:"#ff2d00",fontSize:12,fontWeight:500,cursor:"pointer",fontFamily:"var(--font-body)",padding:0}}>Forgot Password?</button></div>
     <Btn variant="purple" onClick={go} disabled={loading} style={{width:"100%",justifyContent:"center",padding:14,borderRadius:12}}>{loading?"...":<><LogIn size={15}/> Login</>}</Btn>
     <button onClick={onBack} style={{width:"100%",marginTop:12,padding:11,borderRadius:10,border:"1px solid #e5e5ec",background:"transparent",color:"#6b6b80",fontSize:13,fontWeight:500,cursor:"pointer",fontFamily:"var(--font-body)",display:"flex",alignItems:"center",justifyContent:"center",gap:5}}><ArrowLeft size={13}/> Back</button></div></div>}
 
@@ -127,6 +128,36 @@ function CreatePasswordPage({email,onSubmit,loading}){const[pw,setPw]=useState("
     <FormInput label="Confirm" icon={Lock} type="password" value={cf} onChange={setCf} placeholder="Confirm" onKeyDown={e=>e.key==="Enter"&&go()}/>
     <Btn variant="green" onClick={go} disabled={loading} style={{width:"100%",justifyContent:"center",padding:14,borderRadius:12}}>{loading?"...":<><CheckCircle2 size={15}/> Create</>}</Btn></div></div>}
 
+/* ═══ FORGOT PASSWORD ═══ */
+function ForgotPasswordPage({onSubmit,onBack,loading,prefillEmail}){const[email,setEmail]=useState(prefillEmail||"")
+  return<div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:"#f8f8fa"}}><div className="fade-up" style={{background:"#fff",border:"1px solid #e5e5ec",borderRadius:20,padding:"44px 36px",width:"100%",maxWidth:420,boxShadow:"0 8px 32px rgba(0,0,0,.06)"}}>
+    <div style={{width:50,height:50,borderRadius:14,background:"linear-gradient(135deg,#d97706,#b45309)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 18px"}}><Lock size={22} color="#fff"/></div>
+    <h2 style={{fontFamily:"var(--font-display)",fontSize:22,fontWeight:600,textAlign:"center",marginBottom:4,color:"#1a1a2e"}}>Forgot Password</h2>
+    <p style={{textAlign:"center",color:"#6b6b80",fontSize:13,marginBottom:28}}>Enter your email to receive a reset code</p>
+    <FormInput label="Email" icon={Mail} value={email} onChange={setEmail} placeholder="email@adityauniversity.in" onKeyDown={e=>e.key==="Enter"&&email&&onSubmit(email.trim().toLowerCase())} autoFocus/>
+    <Btn variant="amber" onClick={()=>email&&onSubmit(email.trim().toLowerCase())} disabled={loading||!email} style={{width:"100%",justifyContent:"center",padding:14,borderRadius:12}}>{loading?"Sending...":<><Send size={15}/> Send Reset Code</>}</Btn>
+    <button onClick={onBack} style={{width:"100%",marginTop:12,padding:11,borderRadius:10,border:"1px solid #e5e5ec",background:"transparent",color:"#6b6b80",fontSize:13,fontWeight:500,cursor:"pointer",fontFamily:"var(--font-body)",display:"flex",alignItems:"center",justifyContent:"center",gap:5}}><ArrowLeft size={13}/> Back to Login</button></div></div>}
+
+function ResetOTPPage({email,onVerify,onBack,loading}){const[otp,setOtp]=useState(["","","","","",""]);const refs=useRef([])
+  const h=(i,v)=>{if(v.length>1)v=v[v.length-1];const n=[...otp];n[i]=v;setOtp(n);if(v&&i<5)refs.current[i+1]?.focus()}
+  const kd=(i,e)=>{if(e.key==="Backspace"&&!otp[i]&&i>0)refs.current[i-1]?.focus();if(e.key==="Enter"&&otp.every(d=>d))onVerify(otp.join(""))}
+  return<div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:"#f8f8fa"}}><div className="fade-up" style={{background:"#fff",border:"1px solid #e5e5ec",borderRadius:20,padding:"44px 36px",width:"100%",maxWidth:420,textAlign:"center",boxShadow:"0 8px 32px rgba(0,0,0,.06)"}}>
+    <h2 style={{fontFamily:"var(--font-display)",fontSize:22,fontWeight:600,marginBottom:4,color:"#1a1a2e"}}>Enter Reset Code</h2><p style={{color:"#ff2d00",fontSize:12.5,fontWeight:600,marginBottom:26}}>{email}</p>
+    <div style={{display:"flex",gap:8,justifyContent:"center",marginBottom:26}}>{otp.map((d,i)=><input key={i} ref={el=>refs.current[i]=el} value={d} maxLength={1} onChange={e=>h(i,e.target.value)} onKeyDown={e=>kd(i,e)} style={{width:46,height:54,textAlign:"center",fontSize:22,fontWeight:700,background:"#f8f8fa",border:`1.5px solid ${d?"#d97706":"#e5e5ec"}`,borderRadius:10,color:"#d97706",fontFamily:"var(--font-display)"}} autoFocus={i===0}/>)}</div>
+    <Btn variant="amber" onClick={()=>onVerify(otp.join(""))} disabled={loading||!otp.every(d=>d)} style={{width:"100%",justifyContent:"center",padding:14,borderRadius:12}}>{loading?"...":<><CheckCircle2 size={15}/> Verify Code</>}</Btn>
+    <button onClick={onBack} style={{width:"100%",marginTop:12,padding:11,borderRadius:10,border:"1px solid #e5e5ec",background:"transparent",color:"#6b6b80",fontSize:13,fontWeight:500,cursor:"pointer",fontFamily:"var(--font-body)",display:"flex",alignItems:"center",justifyContent:"center",gap:5}}><ArrowLeft size={13}/> Back</button></div></div>}
+
+function ResetPasswordPage({email,onSubmit,loading}){const[pw,setPw]=useState("");const[cf,setCf]=useState("");const[err,setErr]=useState("")
+  const go=()=>{setErr("");if(pw.length<6)return setErr("Min 6 chars");if(!/[A-Z]/.test(pw))return setErr("Need uppercase");if(!/[0-9]/.test(pw))return setErr("Need number");if(pw!==cf)return setErr("No match");onSubmit(pw)}
+  return<div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:"#f8f8fa"}}><div className="fade-up" style={{background:"#fff",border:"1px solid #e5e5ec",borderRadius:20,padding:"44px 36px",width:"100%",maxWidth:420,boxShadow:"0 8px 32px rgba(0,0,0,.06)"}}>
+    <div style={{width:50,height:50,borderRadius:14,background:"linear-gradient(135deg,#16a34a,#15803d)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 18px"}}><Lock size={22} color="#fff"/></div>
+    <h2 style={{fontFamily:"var(--font-display)",fontSize:22,fontWeight:600,textAlign:"center",marginBottom:4,color:"#1a1a2e"}}>New Password</h2>
+    <p style={{textAlign:"center",color:"#ff2d00",fontSize:12,fontWeight:500,marginBottom:18}}>{email}</p>
+    {err&&<div style={{padding:"9px 13px",borderRadius:8,background:"#fef5f5",border:"1px solid #f5c0c0",color:"#dc2626",fontSize:12.5,marginBottom:14,display:"flex",alignItems:"center",gap:7}}><AlertCircle size={13}/>{err}</div>}
+    <FormInput label="New Password" icon={Lock} type="password" value={pw} onChange={setPw} placeholder="Min 6, 1 upper, 1 number" onKeyDown={e=>e.key==="Enter"&&go()}/>
+    <FormInput label="Confirm" icon={Lock} type="password" value={cf} onChange={setCf} placeholder="Confirm" onKeyDown={e=>e.key==="Enter"&&go()}/>
+    <Btn variant="green" onClick={go} disabled={loading} style={{width:"100%",justifyContent:"center",padding:14,borderRadius:12}}>{loading?"...":<><CheckCircle2 size={15}/> Reset Password</>}</Btn></div></div>}
+
 function StatCard({icon:Icon,value,label,color="#ff2d00"}){return<div style={{background:"#fff",border:"1px solid #e5e5ec",borderRadius:14,padding:"16px 18px",boxShadow:"0 1px 4px rgba(0,0,0,.03)"}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}><div><div style={{fontFamily:"var(--font-display)",fontSize:26,fontWeight:700,color}}>{value}</div><div style={{fontSize:10.5,color:"#9898a8",textTransform:"uppercase",letterSpacing:1,fontWeight:600,marginTop:2}}>{label}</div></div><div style={{width:34,height:34,borderRadius:9,background:`${color}0c`,display:"flex",alignItems:"center",justifyContent:"center"}}><Icon size={16} color={color}/></div></div></div>}
 
 function TaskCard({task,index,onClick}){const c=CARD_COLORS[index%CARD_COLORS.length];const stages=task.stages||[];const done=stages.filter(s=>s.status==="completed").length;const prog=stages.filter(s=>s.status==="progress").length
@@ -155,7 +186,7 @@ function StageCard({stage,idx,colKey,onDragStart,canDrag,onEdit,onDelete,canEdit
     <div style={{marginTop:9}}>
       {assignedMembers.length>0&&<div style={{display:"flex",flexWrap:"wrap",gap:4,marginBottom:6}}>
         {assignedMembers.map((m,i)=><div key={i} style={{display:"flex",alignItems:"center",gap:4,padding:"3px 8px",background:"#f0f4ff",border:"1px solid #d8e4ff",borderRadius:6,fontSize:10.5,color:"#3b82f6"}}>
-          <Avatar name={m.name} size={16}/>{m.name.split(" ")[0]}</div>)}</div>}
+          <Avatar name={m.name} size={16}/>{m.name}</div>)}</div>}
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
         <div style={{display:"flex",alignItems:"center",gap:5}}>
           {canEdit&&unassignedTeam.length>0&&<SearchDropdown options={unassignedTeam.map(m=>({...m,value:m.email,label:m.name}))} value="" onChange={v=>onAssign(idx,colKey,v)} placeholder={assignedMembers.length>0?"+Add":"Assign..."}/>}
@@ -189,7 +220,7 @@ function KanbanBoard({stages,onSaveStages,canManage,isTM,currentUser,mentors,tea
       <div style={{padding:"13px 15px 10px",borderBottom:`1px solid ${st.border}`,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
         <div style={{display:"flex",alignItems:"center",gap:7}}><div style={{width:7,height:7,borderRadius:"50%",background:st.color}}/><h3 style={{fontFamily:"var(--font-display)",fontSize:12,fontWeight:600,color:st.color}}>{st.label}</h3></div>
         <span style={{fontSize:11,fontWeight:700,color:st.color,background:`${st.color}12`,padding:"2px 7px",borderRadius:5}}>{items.length}</span></div>
-      <div style={{padding:10,display:"flex",flexDirection:"column",gap:7,flex:1,overflowY:"auto"}}>
+      <div style={{padding:10,display:"flex",flexDirection:"column",gap:7,flex:1,overflow:"visible",position:"relative"}}>
         {items.map((stage,idx)=>{const stgAssign=Array.isArray(stage.assignedTo)?stage.assignedTo:stage.assignedTo?[stage.assignedTo]:[];const canDrag=canManage||stgAssign.includes(currentUser?.email)
           if(editIdx===idx&&editCol===colKey)return<div key={idx} style={{background:"#fff",border:"1px solid #d0d0da",borderRadius:10,padding:"10px 12px"}}>
             <input value={editTitle} onChange={e=>setEditTitle(e.target.value)} onKeyDown={e=>e.key==="Enter"&&saveEd()} style={{width:"100%",padding:"7px 9px",background:"#f8f8fa",border:"1px solid #e5e5ec",borderRadius:7,color:"#1a1a2e",fontSize:12.5,marginBottom:7}} autoFocus/>
@@ -203,7 +234,7 @@ function KanbanBoard({stages,onSaveStages,canManage,isTM,currentUser,mentors,tea
         <Btn onClick={addNew} style={{padding:"9px 16px",fontSize:12.5}}><Plus size={13}/> Add</Btn></>}
       {isTM&&!canManage&&<><input value={newStage} onChange={e=>setNewStage(e.target.value)} placeholder="Request a sub-task..." style={{flex:1,minWidth:160,padding:"9px 13px",background:"#fff",border:"1px solid #e5e5ec",borderRadius:9,color:"#1a1a2e",fontSize:12.5}}/>
         <Btn variant="amber" onClick={()=>{if(newStage.trim()){onRequestStage(newStage.trim());setNewStage("")}}} style={{padding:"9px 16px",fontSize:12.5}}><MessageSquare size={13}/> Request</Btn></>}</div>
-    <div className="kanban-cols" style={{display:"flex",gap:12,overflowX:"auto"}}>{renderCol("todo")}{renderCol("progress")}{renderCol("completed")}</div></div>}
+    <div className="kanban-cols" style={{display:"flex",gap:12,overflow:"visible",position:"relative"}}>{renderCol("todo")}{renderCol("progress")}{renderCol("completed")}</div></div>}
 
 function TaskDetail({task,mentors,onClose,onUpdate,isAdmin,currentUser,addToast,onSendNotification}){
   const isResp=task.responsible?.email===currentUser?.email;const isTM=(task.teamMembers||[]).some(m=>m.email===currentUser?.email);const canManage=isAdmin||isResp
@@ -275,7 +306,7 @@ function TaskDetail({task,mentors,onClose,onUpdate,isAdmin,currentUser,addToast,
         <div style={{minWidth:200}}><SearchDropdown label="Add Team" options={teamOpts} value="" onChange={addTM} placeholder="Add member..."/></div>
         {(task.teamMembers||[]).length>0&&<div style={{display:"flex",flexWrap:"wrap",gap:5,alignItems:"center"}}>
           {(task.teamMembers||[]).map(m=><div key={m.email} style={{display:"flex",alignItems:"center",gap:4,padding:"4px 9px",background:"#f8f8fa",border:"1px solid #e5e5ec",borderRadius:7,fontSize:11.5,color:"#6b6b80"}}>
-            <Avatar name={m.name} size={16}/>{m.name.split(" ")[0]}<button onClick={()=>rmTM(m.email)} style={{background:"none",border:"none",cursor:"pointer",color:"#9898a8",display:"flex",padding:0}}><X size={11}/></button></div>)}</div>}</div>}
+            <Avatar name={m.name} size={16}/>{m.name}<button onClick={()=>rmTM(m.email)} style={{background:"none",border:"none",cursor:"pointer",color:"#9898a8",display:"flex",padding:0}}><X size={11}/></button></div>)}</div>}</div>}
 
       {/* Sub-Task Requests */}
       {canManage&&stageRequests.length>0&&<div style={{padding:"12px 26px",borderBottom:"1px solid #e5e5ec",background:"#fffbf0"}}>
@@ -295,11 +326,18 @@ function TaskDetail({task,mentors,onClose,onUpdate,isAdmin,currentUser,addToast,
     </div></div>}
 
 /* ═══ DASHBOARDS ═══ */
-function AdminDashboard({user,tasks,mentors,onLogout,onRefresh,addToast,notifications,onToggleNotifs,unreadCount,onSendNotification}){const[search,setSearch]=useState("");const[openTask,setOpenTask]=useState(null);const[showAddTask,setShowAddTask]=useState(false);const[newTitle,setNewTitle]=useState("");const[newDesc,setNewDesc]=useState("")
+function AdminDashboard({user,tasks,mentors,onLogout,onRefresh,addToast,notifications,onToggleNotifs,unreadCount,onSendNotification}){const[search,setSearch]=useState("");const[openTask,setOpenTask]=useState(null);const[showAddTask,setShowAddTask]=useState(false);const[newTitle,setNewTitle]=useState("");const[newDesc,setNewDesc]=useState("");const[showOverview,setShowOverview]=useState(false)
   const filtered=tasks.filter(t=>{const q=search.toLowerCase();if(!q)return true;return t.title.toLowerCase().includes(q)||(t.responsible?.name||"").toLowerCase().includes(q)||(t.stages||[]).some(s=>s.title.toLowerCase().includes(q))})
   let totalS=0,doneS=0,progS=0;tasks.forEach(t=>(t.stages||[]).forEach(s=>{totalS++;if(s.status==="completed")doneS++;if(s.status==="progress")progS++}))
+  const pendingS=totalS-doneS-progS
   const assigned=tasks.filter(t=>t.responsible).length;const activeTask=openTask?tasks.find(t=>t._id===openTask):null
   const addTask=async()=>{if(!newTitle.trim())return;try{const r=await fetch("/api/tasks",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({title:newTitle.trim(),description:newDesc.trim()})});if(r.ok){addToast(`Task created!`,"success");setNewTitle("");setNewDesc("");setShowAddTask(false);onRefresh()}else addToast("Failed","error")}catch{addToast("Error","error")}}
+
+  // Collect all sub-tasks with their parent task name for overview
+  const allSubTasks=[];tasks.forEach(t=>(t.stages||[]).forEach(s=>{const st=(!s.status||s.status==="todo"||s.status==="pending")?"pending":s.status;allSubTasks.push({...s,taskTitle:t.title,taskId:t._id,responsible:t.responsible,statusNorm:st})}))
+  const pendingItems=allSubTasks.filter(s=>s.statusNorm==="pending")
+  const progressItems=allSubTasks.filter(s=>s.statusNorm==="progress")
+  const completedItems=allSubTasks.filter(s=>s.statusNorm==="completed")
 
   return<div style={{minHeight:"100vh",background:"#f8f8fa"}}><div className="top-bar" style={{padding:"14px 26px",borderBottom:"1px solid #e5e5ec",display:"flex",justifyContent:"space-between",alignItems:"center",background:"#fff"}}>
     <div style={{display:"flex",alignItems:"center",gap:10}}><div style={{width:34,height:34,borderRadius:9,background:"linear-gradient(135deg,#ff2d00,#cc2400)",display:"flex",alignItems:"center",justifyContent:"center"}}><ClipboardList size={16} color="#fff"/></div>
@@ -314,7 +352,44 @@ function AdminDashboard({user,tasks,mentors,onLogout,onRefresh,addToast,notifica
       <div style={{display:"flex",gap:10,marginBottom:22,flexWrap:"wrap"}}>
         <div style={{flex:1,minWidth:200,position:"relative"}}><Search size={15} style={{position:"absolute",left:13,top:"50%",transform:"translateY(-50%)",color:"#9898a8"}}/>
           <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search..." style={{width:"100%",padding:"11px 16px 11px 40px",background:"#fff",border:"1px solid #e5e5ec",borderRadius:10,color:"#1a1a2e",fontSize:13,boxShadow:"0 1px 3px rgba(0,0,0,.03)"}}/></div>
-        <Btn onClick={()=>setShowAddTask(true)}><Plus size={14}/> Add Task</Btn></div>
+        <Btn onClick={()=>setShowAddTask(true)}><Plus size={14}/> Add Task</Btn>
+        <Btn variant="secondary" onClick={()=>setShowOverview(!showOverview)} style={{border:"1px solid #c8d8ff",background:showOverview?"#f0f4ff":"#fff",color:"#3b82f6"}}><BarChart3 size={14}/> Tasks Status</Btn></div>
+
+      {/* Tasks Status Overview */}
+      {showOverview&&<div style={{marginBottom:24,background:"#fff",border:"1px solid #e5e5ec",borderRadius:16,boxShadow:"0 2px 8px rgba(0,0,0,.04)",overflow:"hidden"}}>
+        <div style={{padding:"16px 20px",borderBottom:"1px solid #e5e5ec",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+          <h3 style={{fontFamily:"var(--font-display)",fontSize:15,fontWeight:600,color:"#1a1a2e"}}>All Sub-Tasks Overview</h3>
+          <div style={{display:"flex",gap:12,fontSize:12,fontWeight:600}}>
+            <span style={{color:"#3b82f6"}}>Pending: {pendingItems.length}</span>
+            <span style={{color:"#d97706"}}>In Progress: {progressItems.length}</span>
+            <span style={{color:"#16a34a"}}>Completed: {completedItems.length}</span></div></div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",minHeight:200}}>
+          {/* Pending Column */}
+          <div style={{borderRight:"1px solid #e5e5ec",padding:12}}>
+            <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:10}}><div style={{width:8,height:8,borderRadius:"50%",background:"#3b82f6"}}/><span style={{fontSize:12,fontWeight:600,color:"#3b82f6"}}>Pending ({pendingItems.length})</span></div>
+            <div style={{display:"flex",flexDirection:"column",gap:6,maxHeight:300,overflowY:"auto"}}>
+              {pendingItems.map((s,i)=><div key={i} style={{padding:"8px 10px",background:"#f5f8ff",border:"1px solid #d8e4ff",borderLeft:"3px solid #3b82f6",borderRadius:8,fontSize:12}}>
+                <div style={{fontWeight:500,color:"#1a1a2e"}}>{s.title}</div>
+                <div style={{fontSize:10.5,color:"#9898a8",marginTop:2}}>{s.taskTitle}</div>
+              </div>)}</div></div>
+          {/* In Progress Column */}
+          <div style={{borderRight:"1px solid #e5e5ec",padding:12}}>
+            <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:10}}><div style={{width:8,height:8,borderRadius:"50%",background:"#d97706"}}/><span style={{fontSize:12,fontWeight:600,color:"#d97706"}}>In Progress ({progressItems.length})</span></div>
+            <div style={{display:"flex",flexDirection:"column",gap:6,maxHeight:300,overflowY:"auto"}}>
+              {progressItems.map((s,i)=><div key={i} style={{padding:"8px 10px",background:"#fffbf0",border:"1px solid #ffe8b8",borderLeft:"3px solid #d97706",borderRadius:8,fontSize:12}}>
+                <div style={{fontWeight:500,color:"#1a1a2e"}}>{s.title}</div>
+                <div style={{fontSize:10.5,color:"#9898a8",marginTop:2}}>{s.taskTitle}</div>
+              </div>)}</div></div>
+          {/* Completed Column */}
+          <div style={{padding:12}}>
+            <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:10}}><div style={{width:8,height:8,borderRadius:"50%",background:"#16a34a"}}/><span style={{fontSize:12,fontWeight:600,color:"#16a34a"}}>Completed ({completedItems.length})</span></div>
+            <div style={{display:"flex",flexDirection:"column",gap:6,maxHeight:300,overflowY:"auto"}}>
+              {completedItems.map((s,i)=><div key={i} style={{padding:"8px 10px",background:"#f0faf4",border:"1px solid #c0e8d0",borderLeft:"3px solid #16a34a",borderRadius:8,fontSize:12}}>
+                <div style={{fontWeight:500,color:"#1a1a2e"}}>{s.title}</div>
+                <div style={{fontSize:10.5,color:"#9898a8",marginTop:2}}>{s.taskTitle}</div>
+              </div>)}</div></div>
+        </div></div>}
+
       <div className="dash-grid" style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))",gap:12}}>{filtered.map((t,i)=><TaskCard key={t._id} task={t} index={i} onClick={()=>setOpenTask(t._id)}/>)}</div>
       {filtered.length===0&&<div style={{textAlign:"center",padding:50,color:"#9898a8"}}><Search size={36} style={{marginBottom:10,opacity:.3}}/><p style={{fontFamily:"var(--font-display)",fontSize:15,fontWeight:600,color:"#6b6b80"}}>No tasks</p></div>}</div>
     {activeTask&&<TaskDetail task={activeTask} mentors={mentors} onClose={()=>setOpenTask(null)} onUpdate={onRefresh} isAdmin={true} currentUser={user} addToast={addToast} onSendNotification={onSendNotification}/>}
@@ -377,10 +452,18 @@ export default function App(){const[page,setPage]=useState("landing");const[emai
   const handleLogout=()=>{setUser(null);setEmail("");setPrefillEmail("");setLoginRole("mentor");setNotifications([]);setShowNotifs(false);setPage("landing")}
   const goHome=()=>{setEmail("");setPrefillEmail("");setLoginRole("mentor");setPage("landing")}
 
+  // Forgot password flow
+  const handleForgotSend=async em=>{setLoading(true);try{const r=await fetch("/api/auth",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"forgot-password",email:em})});const d=await r.json();if(r.ok){setEmail(em);if(d.demo_otp)addToast(`Reset code: ${d.demo_otp}`,"warning");else addToast("Reset code sent!","success");setPage("reset-otp")}else addToast(d.error,"error")}catch{addToast("Error","error")};setLoading(false)}
+  const handleResetVerify=async otp=>{setLoading(true);try{const r=await fetch("/api/auth",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"verify-otp",email,otp})});const d=await r.json();if(r.ok){addToast("Code verified! Set new password.","success");setPage("reset-password")}else addToast(d.error,"error")}catch{addToast("Error","error")};setLoading(false)}
+  const handleResetPassword=async pw=>{setLoading(true);try{const r=await fetch("/api/auth",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"reset-password",email,password:pw})});const d=await r.json();if(r.ok){addToast("Password reset! Login now.","success");setPrefillEmail(email);setPage("login")}else addToast(d.error,"error")}catch{addToast("Error","error")};setLoading(false)}
+
   return<><Toasts toasts={toasts}/>
     {page==="landing"&&<LandingPage onLogin={()=>{setAuthMode("login");setPage("role-pick")}} onCreateAccount={()=>{setAuthMode("create");setPage("role-pick")}}/>}
     {page==="role-pick"&&<RolePickPage mode={authMode} onPick={r=>{setLoginRole(r);if(authMode==="login")setPage("login");else setPage("create-email")}} onBack={goHome}/>}
-    {page==="login"&&<LoginPage onSubmit={handleLogin} onBack={()=>setPage("role-pick")} loading={loading} prefillEmail={prefillEmail} role={loginRole}/>}
+    {page==="login"&&<LoginPage onSubmit={handleLogin} onBack={()=>setPage("role-pick")} loading={loading} prefillEmail={prefillEmail} role={loginRole} onForgot={em=>{if(em)setEmail(em);setPage("forgot-password")}}/>}
+    {page==="forgot-password"&&<ForgotPasswordPage onSubmit={handleForgotSend} onBack={()=>setPage("login")} loading={loading} prefillEmail={email}/>}
+    {page==="reset-otp"&&<ResetOTPPage email={email} onVerify={handleResetVerify} onBack={()=>setPage("forgot-password")} loading={loading}/>}
+    {page==="reset-password"&&<ResetPasswordPage email={email} onSubmit={handleResetPassword} loading={loading}/>}
     {page==="create-email"&&<CreateEmailPage onSubmit={handleCreateSendOTP} onBack={()=>setPage("role-pick")} loading={loading} role={loginRole}/>}
     {page==="otp"&&<OTPPage email={email} onVerify={handleVerifyOTP} onBack={()=>setPage("create-email")} loading={loading}/>}
     {page==="create-password"&&<CreatePasswordPage email={email} onSubmit={handleCreatePassword} loading={loading}/>}

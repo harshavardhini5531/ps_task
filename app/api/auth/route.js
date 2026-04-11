@@ -181,7 +181,68 @@ export async function POST(req) {
       return NextResponse.json({ success: true, mentor: { name: mentor.name, email: mentor.email, role } })
     }
 
-    // ── SEND ASSIGNMENT NOTIFICATION ──
+    // ── FORGOT PASSWORD (send reset OTP) ──
+    if (action === 'forgot-password') {
+      const { email } = body
+      if (!email) return NextResponse.json({ error: 'Email is required' }, { status: 400 })
+      const emailLower = email.toLowerCase().trim()
+      const mentor = await db.collection('task_mentors').findOne({ email: emailLower })
+      if (!mentor) return NextResponse.json({ error: 'Email not found.' }, { status: 404 })
+      if (!mentor.passwordHash) return NextResponse.json({ error: 'No account found. Create account first.' }, { status: 403 })
+
+      const otp = generateOTP()
+      const expiresAt = new Date(Date.now() + 10 * 60 * 1000)
+      await db.collection('task_otps').deleteMany({ email: emailLower })
+      await db.collection('task_otps').insertOne({ email: emailLower, otp, expiresAt, type: 'reset', createdAt: new Date() })
+
+      const transporter = await getTransporter()
+      let emailSent = false
+      if (transporter) {
+        try {
+          await transporter.sendMail({
+            from: process.env.SMTP_FROM || process.env.SMTP_USER,
+            to: emailLower,
+            subject: 'ProjectSpace - Password Reset Code',
+            html: `
+              <div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;padding:32px;background:#0a0a14;color:#f0eff4;border-radius:16px">
+                <h2 style="color:#ff2d00;margin:0 0 8px">ProjectSpace</h2>
+                <p style="color:#9898b0;margin:0 0 24px">Password Reset</p>
+                <p>Hi ${mentor.name},</p>
+                <p>Your password reset code is:</p>
+                <div style="background:#161624;border:2px solid #ff2d00;border-radius:12px;padding:20px;text-align:center;margin:20px 0">
+                  <span style="font-size:36px;font-weight:800;letter-spacing:8px;color:#ff2d00">${otp}</span>
+                </div>
+                <p style="color:#5c5c78;font-size:13px">This code expires in 10 minutes.</p>
+              </div>
+            `,
+          })
+          emailSent = true
+        } catch (err) { console.error('Reset email failed:', err.message) }
+      }
+
+      return NextResponse.json({
+        success: true,
+        message: emailSent ? 'Reset code sent to your email' : 'Reset code generated',
+        demo_otp: emailSent ? undefined : otp,
+      })
+    }
+
+    // ── RESET PASSWORD (after OTP verified) ──
+    if (action === 'reset-password') {
+      const { email, password } = body
+      if (!email || !password) return NextResponse.json({ error: 'Email and password required' }, { status: 400 })
+      if (password.length < 6) return NextResponse.json({ error: 'Password must be at least 6 characters' }, { status: 400 })
+      const emailLower = email.toLowerCase().trim()
+      const mentor = await db.collection('task_mentors').findOne({ email: emailLower })
+      if (!mentor) return NextResponse.json({ error: 'Mentor not found' }, { status: 404 })
+      await db.collection('task_mentors').updateOne(
+        { email: emailLower },
+        { $set: { passwordHash: hashPassword(password) } }
+      )
+      return NextResponse.json({ success: true, message: 'Password reset successfully!' })
+    }
+
+    // ── SEND ASSIGNMENT NOTIFICATION (original) ──
     if (action === 'notify-assignment') {
       const { mentorEmail, mentorName, taskTitle, assignRole } = body
       if (!mentorEmail || !taskTitle) return NextResponse.json({ error: 'Missing data' }, { status: 400 })
