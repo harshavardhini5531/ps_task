@@ -1,6 +1,6 @@
 "use client"
 import { useState, useEffect, useCallback, useRef } from "react"
-import { LogIn, LogOut, Search, Plus, Trash2, Edit3, Check, X, Bell, Users, ClipboardList, BarChart3, Layers, Shield, Eye, EyeOff, Mail, Lock, User, CheckCircle2, AlertCircle, Clock, ArrowLeft, Star, Send, GripVertical, UserPlus, ChevronDown, MessageSquare, BellRing } from "lucide-react"
+import { LogIn, LogOut, Search, Plus, Trash2, Edit3, Check, X, Bell, Users, ClipboardList, BarChart3, Layers, Shield, Eye, EyeOff, Mail, Lock, User, CheckCircle2, AlertCircle, Clock, ArrowLeft, Star, Send, GripVertical, UserPlus, ChevronDown, MessageSquare, BellRing, CalendarDays } from "lucide-react"
 
 const ADMIN_EMAILS=["harshavardhini.j@adityauniversity.in","babji@aec.edu.in","harshavardhini@technicalhub.io"]
 const EXCLUDE_FROM_TEAM=["babji@aec.edu.in"]
@@ -172,19 +172,36 @@ function TaskCard({task,index,onClick}){const c=CARD_COLORS[index%CARD_COLORS.le
     <div style={{marginTop:10,display:"flex",alignItems:"center",gap:7}}>
       {task.responsible?<><Avatar name={task.responsible.name} size={20}/><span style={{fontSize:11.5,color:"#6b6b80"}}>{task.responsible.name}</span></>:<span style={{fontSize:11.5,color:"#9898a8",fontStyle:"italic"}}>Unassigned</span>}</div></div>}
 
-function StageCard({stage,idx,colKey,onDragStart,canDrag,onEdit,onDelete,canEdit,mentors,teamMembers,onAssign}){
+function StageCard({stage,idx,colKey,onDragStart,canDrag,onEdit,onDelete,canEdit,mentors,teamMembers,onAssign,onSetDeadline}){
   const assignedList=Array.isArray(stage.assignedTo)?stage.assignedTo:stage.assignedTo?[stage.assignedTo]:[]
   const assignedMembers=assignedList.map(email=>[...mentors,...teamMembers].find(m=>m.email===email)).filter(Boolean)
   const unassignedTeam=teamMembers.filter(m=>!assignedList.includes(m.email))
   const borderL=colKey==="progress"?"#d97706":colKey==="completed"?"#16a34a":"#3b82f6"
   const bg=colKey==="progress"?"#fffdf5":colKey==="completed"?"#f5fcf8":"#fff"
+  const deadline=stage.deadline?new Date(stage.deadline):null
+  const isOverdue=deadline&&colKey!=="completed"&&deadline<new Date()
+  const daysLeft=deadline&&colKey!=="completed"?Math.ceil((deadline-new Date())/(1000*60*60*24)):null
   return<div draggable={canDrag} onDragStart={e=>{if(!canDrag){e.preventDefault();return}onDragStart(e,idx,colKey)}}
-    style={{background:bg,border:"1px solid #e5e5ec",borderLeft:`3px solid ${borderL}`,borderRadius:10,padding:"12px 14px",cursor:canDrag?"grab":"default",transition:"all .15s"}}
+    style={{background:isOverdue?"#fff5f5":bg,border:`1px solid ${isOverdue?"#fcc":"#e5e5ec"}`,borderLeft:`3px solid ${isOverdue?"#dc2626":borderL}`,borderRadius:10,padding:"12px 14px",cursor:canDrag?"grab":"default",transition:"all .15s"}}
     onMouseEnter={e=>{if(canDrag)e.currentTarget.style.boxShadow="0 3px 10px rgba(0,0,0,.06)"}} onMouseLeave={e=>{e.currentTarget.style.boxShadow="none"}}>
     <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:7}}>
       <p style={{fontSize:13,fontWeight:500,color:"#1a1a2e",lineHeight:1.4,flex:1}}>{stage.title}</p>
       {canDrag&&<GripVertical size={13} color="#c0c0cc" style={{flexShrink:0,marginTop:2}}/>}</div>
-    <div style={{marginTop:9}}>
+    {/* Deadline row */}
+    <div style={{display:"flex",alignItems:"center",gap:6,marginTop:7}}>
+      <div style={{position:"relative",display:"flex",alignItems:"center"}}>
+        <CalendarDays size={13} color={isOverdue?"#dc2626":deadline?"#8b5cf6":"#c0c0cc"} style={{cursor:"pointer"}}/>
+        <input type="date" value={stage.deadline||""} onChange={e=>onSetDeadline(idx,colKey,e.target.value)}
+          style={{position:"absolute",left:0,top:0,width:20,height:20,opacity:0,cursor:"pointer"}}/>
+      </div>
+      {deadline&&<span style={{fontSize:10,fontWeight:500,color:isOverdue?"#dc2626":daysLeft!==null&&daysLeft<=2?"#d97706":"#8b5cf6"}}>
+        {colKey==="completed"?<span style={{color:"#16a34a"}}>Done {deadline.toLocaleDateString("en-IN",{day:"numeric",month:"short"})}</span>
+          :isOverdue?<span>Overdue! {deadline.toLocaleDateString("en-IN",{day:"numeric",month:"short"})}</span>
+          :<span>{deadline.toLocaleDateString("en-IN",{day:"numeric",month:"short"})}{daysLeft!==null&&<span style={{color:"#9898a8"}}> ({daysLeft}d left)</span>}</span>}
+      </span>}
+      {!deadline&&<span style={{fontSize:10,color:"#c0c0cc",fontStyle:"italic",cursor:"pointer"}} onClick={e=>{const inp=e.currentTarget.previousElementSibling?.querySelector("input");if(inp)inp.showPicker?.()}}>Set deadline</span>}
+    </div>
+    <div style={{marginTop:7}}>
       {assignedMembers.length>0&&<div style={{display:"flex",flexWrap:"wrap",gap:4,marginBottom:6}}>
         {assignedMembers.map((m,i)=><div key={i} style={{display:"flex",alignItems:"center",gap:4,padding:"3px 8px",background:"#f0f4ff",border:"1px solid #d8e4ff",borderRadius:6,fontSize:10.5,color:"#3b82f6"}}>
           <Avatar name={m.name} size={16}/>{m.name}</div>)}</div>}
@@ -193,7 +210,7 @@ function StageCard({stage,idx,colKey,onDragStart,canDrag,onEdit,onDelete,canEdit
           {canEdit&&unassignedTeam.length>0&&<SearchDropdown options={unassignedTeam.map(m=>({...m,value:m.email,label:m.name}))} value="" onChange={v=>onAssign(idx,colKey,v)} placeholder={assignedMembers.length>0?"+Add":"Assign..."}/>}
           {!canEdit&&assignedMembers.length===0&&<span style={{fontSize:10.5,color:"#c0c0cc",fontStyle:"italic"}}>Unassigned</span>}</div>
         <div style={{display:"flex",gap:3,alignItems:"center"}}>
-          {stage.completedAt&&<span style={{fontSize:9.5,color:"#c0c0cc"}}>{new Date(stage.completedAt).toLocaleDateString("en-IN",{day:"numeric",month:"short"})}</span>}
+          {stage.completedAt&&<span style={{fontSize:9.5,color:"#16a34a"}}><CheckCircle2 size={10} style={{verticalAlign:"middle",marginRight:2}}/>{new Date(stage.completedAt).toLocaleDateString("en-IN",{day:"numeric",month:"short"})}</span>}
           {canEdit&&<><button onClick={()=>onEdit(idx,colKey)} style={{background:"none",border:"none",cursor:"pointer",color:"#9898a8",display:"flex",padding:2}}><Edit3 size={11}/></button>
             <button onClick={()=>onDelete(idx,colKey)} style={{background:"none",border:"none",cursor:"pointer",color:"#9898a8",display:"flex",padding:2}}><Trash2 size={11}/></button></>}</div></div></div></div>}
 
@@ -216,6 +233,7 @@ function KanbanBoard({stages,onSaveStages,canManage,isTM,currentUser,mentors,tea
   const startEd=(idx,col)=>{setEditIdx(idx);setEditCol(col);setEditTitle(getCol(col)[idx].title)}
   const saveEd=()=>{if(!editTitle.trim())return;const s=getCol(editCol)[editIdx];onSaveStages(stages.map(x=>(x.title===s.title&&norm(x)===editCol&&x.assignedTo===s.assignedTo)?{...x,title:editTitle.trim()}:x));setEditIdx(null);setEditCol(null)}
   const assignS=(idx,col,email)=>{const s=getCol(col)[idx];const m=mentors.find(x=>x.email===email);onSaveStages(stages.map(x=>{if(x.title===s.title&&norm(x)===col){const curr=Array.isArray(x.assignedTo)?x.assignedTo:x.assignedTo?[x.assignedTo]:[];if(!curr.includes(email))return{...x,assignedTo:[...curr,email]};return x}return x}));if(m)addToast(`Assigned to ${m.name}`,"success")}
+  const setDeadline=(idx,col,date)=>{const s=getCol(col)[idx];onSaveStages(stages.map(x=>(x.title===s.title&&norm(x)===col&&x.assignedTo===s.assignedTo)?{...x,deadline:date||null}:x));addToast(date?`Deadline set: ${new Date(date).toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"})}`:"Deadline removed","success")}
   const renderCol=colKey=>{const st=COL_STYLES[colKey];const items=getCol(colKey)
     return<div onDragOver={onDragOver} onDrop={e=>onDrop(e,colKey)} style={{flex:1,minWidth:240,background:st.bg,border:`1px solid ${st.border}`,borderRadius:14,display:"flex",flexDirection:"column",minHeight:200}}>
       <div style={{padding:"13px 15px 10px",borderBottom:`1px solid ${st.border}`,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
@@ -227,7 +245,7 @@ function KanbanBoard({stages,onSaveStages,canManage,isTM,currentUser,mentors,tea
             <input value={editTitle} onChange={e=>setEditTitle(e.target.value)} onKeyDown={e=>e.key==="Enter"&&saveEd()} style={{width:"100%",padding:"7px 9px",background:"#f8f8fa",border:"1px solid #e5e5ec",borderRadius:7,color:"#1a1a2e",fontSize:12.5,marginBottom:7}} autoFocus/>
             <div style={{display:"flex",gap:5}}><button onClick={saveEd} style={{background:"#f0faf4",border:"1px solid #c0e8d0",borderRadius:7,padding:"5px 10px",color:"#16a34a",fontSize:11.5,fontWeight:600,cursor:"pointer"}}><Check size={11}/> Save</button>
               <button onClick={()=>{setEditIdx(null);setEditCol(null)}} style={{background:"#fff",border:"1px solid #e5e5ec",borderRadius:7,padding:"5px 10px",color:"#6b6b80",fontSize:11.5,fontWeight:600,cursor:"pointer"}}>Cancel</button></div></div>
-          return<StageCard key={idx} stage={stage} idx={idx} colKey={colKey} onDragStart={onDragStart} canDrag={canDrag} onEdit={startEd} onDelete={del} canEdit={canManage} mentors={mentors} teamMembers={teamMembers} onAssign={assignS}/>})}
+          return<StageCard key={idx} stage={stage} idx={idx} colKey={colKey} onDragStart={onDragStart} canDrag={canDrag} onEdit={startEd} onDelete={del} canEdit={canManage} mentors={mentors} teamMembers={teamMembers} onAssign={assignS} onSetDeadline={setDeadline}/>})}
         {items.length===0&&<div style={{textAlign:"center",padding:"18px 10px",color:"#c0c0cc",fontSize:11.5}}>Drag sub-tasks here</div>}</div></div>}
   return<div>
     <div style={{display:"flex",gap:8,marginBottom:14,alignItems:"center",flexWrap:"wrap"}}>
