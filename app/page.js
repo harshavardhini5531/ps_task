@@ -187,20 +187,19 @@ function StageCard({stage,idx,colKey,onDragStart,canDrag,onEdit,onDelete,canEdit
     <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:7}}>
       <p style={{fontSize:13,fontWeight:500,color:"#1a1a2e",lineHeight:1.4,flex:1}}>{stage.title}</p>
       {canDrag&&<GripVertical size={13} color="#c0c0cc" style={{flexShrink:0,marginTop:2}}/>}</div>
-    {/* Deadline row */}
-    <div style={{display:"flex",alignItems:"center",gap:6,marginTop:7}}>
+    {/* Deadline row - only for non-completed */}
+    {colKey!=="completed"&&<div style={{display:"flex",alignItems:"center",gap:6,marginTop:7}}>
       <div style={{position:"relative",display:"flex",alignItems:"center"}}>
         <CalendarDays size={13} color={isOverdue?"#dc2626":deadline?"#8b5cf6":"#c0c0cc"} style={{cursor:"pointer"}}/>
         <input type="date" value={stage.deadline||""} onChange={e=>onSetDeadline(idx,colKey,e.target.value)}
           style={{position:"absolute",left:0,top:0,width:20,height:20,opacity:0,cursor:"pointer"}}/>
       </div>
       {deadline&&<span style={{fontSize:10,fontWeight:500,color:isOverdue?"#dc2626":daysLeft!==null&&daysLeft<=2?"#d97706":"#8b5cf6"}}>
-        {colKey==="completed"?<span style={{color:"#16a34a"}}>Done {deadline.toLocaleDateString("en-IN",{day:"numeric",month:"short"})}</span>
-          :isOverdue?<span>Overdue! {deadline.toLocaleDateString("en-IN",{day:"numeric",month:"short"})}</span>
+        {isOverdue?<span>Overdue! {deadline.toLocaleDateString("en-IN",{day:"numeric",month:"short"})}</span>
           :<span>{deadline.toLocaleDateString("en-IN",{day:"numeric",month:"short"})}{daysLeft!==null&&<span style={{color:"#9898a8"}}> ({daysLeft}d left)</span>}</span>}
       </span>}
       {!deadline&&<span style={{fontSize:10,color:"#c0c0cc",fontStyle:"italic",cursor:"pointer"}} onClick={e=>{const inp=e.currentTarget.previousElementSibling?.querySelector("input");if(inp)inp.showPicker?.()}}>Set deadline</span>}
-    </div>
+    </div>}
     <div style={{marginTop:7}}>
       {assignedMembers.length>0&&<div style={{display:"flex",flexWrap:"wrap",gap:4,marginBottom:6}}>
         {assignedMembers.map((m,i)=><div key={i} style={{display:"flex",alignItems:"center",gap:4,padding:"3px 8px",background:"#f0f4ff",border:"1px solid #d8e4ff",borderRadius:6,fontSize:10.5,color:"#3b82f6"}}>
@@ -357,17 +356,19 @@ function TaskDetail({task,mentors,onClose,onUpdate,isAdmin,currentUser,addToast,
 
 /* ═══ DASHBOARDS ═══ */
 function AdminDashboard({user,tasks,mentors,onLogout,onRefresh,addToast,notifications,onToggleNotifs,unreadCount,onSendNotification}){const[search,setSearch]=useState("");const[openTask,setOpenTask]=useState(null);const[showAddTask,setShowAddTask]=useState(false);const[newTitle,setNewTitle]=useState("");const[newDesc,setNewDesc]=useState("");const[activeTab,setActiveTab]=useState("tasks")
-  const filtered=tasks.filter(t=>{const q=search.toLowerCase();if(!q)return true;return t.title.toLowerCase().includes(q)||(t.responsible?.name||"").toLowerCase().includes(q)||(t.stages||[]).some(s=>s.title.toLowerCase().includes(q))})
+  const filtered=tasks.filter(t=>{const q=search.toLowerCase();if(!q)return true;return t.title.toLowerCase().includes(q)||(t.responsible?.name||"").toLowerCase().includes(q)||(t.teamMembers||[]).some(m=>m.name.toLowerCase().includes(q))||(t.stages||[]).some(s=>s.title.toLowerCase().includes(q))})
   let totalS=0,doneS=0,progS=0;tasks.forEach(t=>(t.stages||[]).forEach(s=>{totalS++;if(s.status==="completed")doneS++;if(s.status==="progress")progS++}))
   const pendingS=totalS-doneS-progS
   const assigned=tasks.filter(t=>t.responsible).length;const activeTask=openTask?tasks.find(t=>t._id===openTask):null
   const addTask=async()=>{if(!newTitle.trim())return;try{const r=await fetch("/api/tasks",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({title:newTitle.trim(),description:newDesc.trim()})});if(r.ok){addToast(`Task created!`,"success");setNewTitle("");setNewDesc("");setShowAddTask(false);onRefresh()}else addToast("Failed","error")}catch{addToast("Error","error")}}
 
-  // Collect all sub-tasks for status overview
+  // Collect all sub-tasks for status overview - filtered by search
   const allSubTasks=[];tasks.forEach(t=>(t.stages||[]).forEach(s=>{const st=(!s.status||s.status==="todo"||s.status==="pending")?"pending":s.status;const assignedNames=Array.isArray(s.assignedTo)?s.assignedTo.map(e=>mentors.find(m=>m.email===e)?.name||e).join(", "):s.assignedTo?mentors.find(m=>m.email===s.assignedTo)?.name||s.assignedTo:"";allSubTasks.push({...s,taskTitle:t.title,taskId:t._id,responsible:t.responsible,statusNorm:st,assignedNames})}))
-  const pendingItems=allSubTasks.filter(s=>s.statusNorm==="pending")
-  const progressItems=allSubTasks.filter(s=>s.statusNorm==="progress")
-  const completedItems=allSubTasks.filter(s=>s.statusNorm==="completed")
+  const q=search.toLowerCase()
+  const filteredSubTasks=q?allSubTasks.filter(s=>s.title.toLowerCase().includes(q)||s.taskTitle.toLowerCase().includes(q)||(s.assignedNames||"").toLowerCase().includes(q)||(s.responsible?.name||"").toLowerCase().includes(q)):allSubTasks
+  const pendingItems=filteredSubTasks.filter(s=>s.statusNorm==="pending")
+  const progressItems=filteredSubTasks.filter(s=>s.statusNorm==="progress")
+  const completedItems=filteredSubTasks.filter(s=>s.statusNorm==="completed")
 
   return<div style={{minHeight:"100vh",background:"#f8f8fa"}}><div className="top-bar" style={{padding:"14px 26px",borderBottom:"1px solid #e5e5ec",display:"flex",justifyContent:"space-between",alignItems:"center",background:"#fff",position:"sticky",top:0,zIndex:50}}>
     <div style={{display:"flex",alignItems:"center",gap:10}}><div style={{width:34,height:34,borderRadius:9,background:"linear-gradient(135deg,#ff2d00,#cc2400)",display:"flex",alignItems:"center",justifyContent:"center"}}><ClipboardList size={16} color="#fff"/></div>
@@ -377,21 +378,24 @@ function AdminDashboard({user,tasks,mentors,onLogout,onRefresh,addToast,notifica
         {unreadCount>0&&<div style={{position:"absolute",top:-4,right:-4,width:18,height:18,borderRadius:"50%",background:"#ff2d00",color:"#fff",fontSize:10,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center",animation:"notifPulse 2s infinite"}}>{unreadCount}</div>}</button>
       <Avatar name={user.name} size={28}/><span style={{fontSize:12.5,color:"#6b6b80"}}>{user.name}</span><Btn variant="ghost" onClick={onLogout} style={{color:"#9898a8"}}><LogOut size={14}/></Btn></div></div>
 
-    {/* Tabs - also sticky below top bar */}
-    <div style={{padding:"0 26px",background:"#fff",borderBottom:"1px solid #e5e5ec",display:"flex",gap:0,position:"sticky",top:52,zIndex:49,boxShadow:"0 1px 3px rgba(0,0,0,.03)"}}>
-      <button onClick={()=>setActiveTab("tasks")} style={{padding:"14px 24px",background:"none",border:"none",borderBottom:activeTab==="tasks"?"2px solid #ff2d00":"2px solid transparent",color:activeTab==="tasks"?"#ff2d00":"#9898a8",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"var(--font-body)",display:"flex",alignItems:"center",gap:6,transition:"all .2s"}}><ClipboardList size={14}/> Tasks</button>
-      <button onClick={()=>setActiveTab("status")} style={{padding:"14px 24px",background:"none",border:"none",borderBottom:activeTab==="status"?"2px solid #3b82f6":"2px solid transparent",color:activeTab==="status"?"#3b82f6":"#9898a8",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"var(--font-body)",display:"flex",alignItems:"center",gap:6,transition:"all .2s"}}><BarChart3 size={14}/> Tasks Status</button>
+    {/* Tabs + Search - sticky below top bar */}
+    <div style={{padding:"10px 26px",background:"#fff",borderBottom:"1px solid #e5e5ec",position:"sticky",top:52,zIndex:49,boxShadow:"0 1px 3px rgba(0,0,0,.03)"}}>
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,flexWrap:"wrap"}}>
+        <div style={{display:"flex",gap:0}}>
+          <button onClick={()=>setActiveTab("tasks")} style={{padding:"10px 20px",background:"none",border:"none",borderBottom:activeTab==="tasks"?"2px solid #ff2d00":"2px solid transparent",color:activeTab==="tasks"?"#ff2d00":"#9898a8",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"var(--font-body)",display:"flex",alignItems:"center",gap:6}}><ClipboardList size={14}/> Tasks</button>
+          <button onClick={()=>setActiveTab("status")} style={{padding:"10px 20px",background:"none",border:"none",borderBottom:activeTab==="status"?"2px solid #3b82f6":"2px solid transparent",color:activeTab==="status"?"#3b82f6":"#9898a8",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"var(--font-body)",display:"flex",alignItems:"center",gap:6}}><BarChart3 size={14}/> Tasks Status</button></div>
+        <div style={{display:"flex",gap:10,alignItems:"center",flex:1,maxWidth:500,minWidth:200}}>
+          <div style={{flex:1,position:"relative"}}><Search size={15} style={{position:"absolute",left:13,top:"50%",transform:"translateY(-50%)",color:"#9898a8"}}/>
+            <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search tasks, sub-tasks, mentors..." style={{width:"100%",padding:"10px 16px 10px 40px",background:"#f8f8fa",border:"1px solid #e5e5ec",borderRadius:10,color:"#1a1a2e",fontSize:13,fontFamily:"var(--font-body)"}}/></div>
+          {activeTab==="tasks"&&<Btn onClick={()=>setShowAddTask(true)} style={{flexShrink:0}}><Plus size={14}/> Add Task</Btn>}</div>
+      </div>
     </div>
 
     {activeTab==="tasks"&&<div style={{padding:"22px 26px",maxWidth:1140,margin:"0 auto"}}>
       <div className="stat-grid" style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(180px,1fr))",gap:12,marginBottom:24}}>
         <StatCard icon={ClipboardList} value={tasks.length} label="Tasks"/><StatCard icon={Users} value={assigned} label="Assigned" color="#3b82f6"/><StatCard icon={Clock} value={progS} label="In Progress" color="#d97706"/><StatCard icon={CheckCircle2} value={doneS} label="Completed" color="#16a34a"/></div>
-      <div style={{display:"flex",gap:10,marginBottom:22,flexWrap:"wrap"}}>
-        <div style={{flex:1,minWidth:200,position:"relative"}}><Search size={15} style={{position:"absolute",left:13,top:"50%",transform:"translateY(-50%)",color:"#9898a8"}}/>
-          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search..." style={{width:"100%",padding:"11px 16px 11px 40px",background:"#fff",border:"1px solid #e5e5ec",borderRadius:10,color:"#1a1a2e",fontSize:13,boxShadow:"0 1px 3px rgba(0,0,0,.03)"}}/></div>
-        <Btn onClick={()=>setShowAddTask(true)}><Plus size={14}/> Add Task</Btn></div>
       <div className="dash-grid" style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))",gap:12}}>{filtered.map((t,i)=><TaskCard key={t._id} task={t} index={i} onClick={()=>setOpenTask(t._id)}/>)}</div>
-      {filtered.length===0&&<div style={{textAlign:"center",padding:50,color:"#9898a8"}}><Search size={36} style={{marginBottom:10,opacity:.3}}/><p style={{fontFamily:"var(--font-display)",fontSize:15,fontWeight:600,color:"#6b6b80"}}>No tasks</p></div>}</div>}
+      {filtered.length===0&&<div style={{textAlign:"center",padding:50,color:"#9898a8"}}><Search size={36} style={{marginBottom:10,opacity:.3}}/><p style={{fontFamily:"var(--font-display)",fontSize:15,fontWeight:600,color:"#6b6b80"}}>No tasks found</p></div>}</div>}
 
     {/* Tasks Status Tab - Full Page */}
     {activeTab==="status"&&<div style={{padding:"22px 26px",maxWidth:1140,margin:"0 auto"}}>
